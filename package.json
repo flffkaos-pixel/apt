@@ -1,0 +1,17 @@
+{
+  "name": "apt",
+  "version": "1.0.0",
+  "description": "아파트 실거래가 및 주변정보 분석 서비스",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "fast-xml-parser": "^4.5.0"
+  }
+}
