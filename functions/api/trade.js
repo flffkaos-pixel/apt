@@ -1,40 +1,36 @@
 export async function onRequest(context) {
-  const { request, env } = context;
-  const url = new URL(request.url);
-  const lawdCd = url.searchParams.get('lawdCd');
-  const dealYmd = url.searchParams.get('dealYmd');
-  const pageNo = url.searchParams.get('pageNo') || '1';
-  const numOfRows = url.searchParams.get('numOfRows') || '100';
-
-  const key = env.PUBLIC_DATA_API_KEY;
-  if (!key) {
-    return new Response(JSON.stringify({ error: 'PUBLIC_DATA_API_KEY가 설정되지 않음' }), {
-      status: 500, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
-    });
-  }
-
-  if (!lawdCd || !dealYmd) {
-    return new Response(JSON.stringify({ error: 'lawdCd와 dealYmd는 필수입니다.' }), {
-      status: 400, headers: { 'content-type': 'application/json' }
-    });
-  }
-
-  const apiUrl = new URL('https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade');
-  apiUrl.searchParams.set('serviceKey', key);
-  apiUrl.searchParams.set('LAWD_CD', lawdCd);
-  apiUrl.searchParams.set('DEAL_YMD', dealYmd);
-  apiUrl.searchParams.set('pageNo', pageNo);
-  apiUrl.searchParams.set('numOfRows', numOfRows);
-
   try {
-    const resp = await fetch(apiUrl.toString());
-    const data = await resp.json();
-    return new Response(JSON.stringify(data), {
+    const env = context.env || {};
+    const url = new URL(context.request.url);
+    const lawdCd = url.searchParams.get('lawdCd');
+    const dealYmd = url.searchParams.get('dealYmd');
+
+    const hasKey = !!env.PUBLIC_DATA_API_KEY;
+    const keyLen = (env.PUBLIC_DATA_API_KEY || '').length;
+    const envKeys = Object.keys(env);
+
+    if (!lawdCd || !dealYmd) {
+      return new Response(JSON.stringify({ error: 'params missing', hasKey, keyLen, envKeys }), {
+        status: 400, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
+      });
+    }
+
+    const apiUrl = new URL('https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade');
+    apiUrl.searchParams.set('serviceKey', env.PUBLIC_DATA_API_KEY);
+    apiUrl.searchParams.set('LAWD_CD', lawdCd);
+    apiUrl.searchParams.set('DEAL_YMD', dealYmd);
+
+    const resp = await fetch(apiUrl.toString(), { signal: AbortSignal.timeout(10000) });
+    const text = await resp.text();
+    let json;
+    try { json = JSON.parse(text); } catch (e) { json = { parseError: e.message, raw: text.substring(0, 300) }; }
+
+    return new Response(JSON.stringify({ status: resp.status, hasKey, keyLen, data: json }), {
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
-      status: 500, headers: { 'content-type': 'application/json' }
+    return new Response(JSON.stringify({ fatal: err.message, stack: err.stack }), {
+      status: 200, headers: { 'content-type': 'application/json' }
     });
   }
 }
