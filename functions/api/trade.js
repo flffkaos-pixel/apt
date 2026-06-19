@@ -6,6 +6,13 @@ export async function onRequest(context) {
   const pageNo = url.searchParams.get('pageNo') || '1';
   const numOfRows = url.searchParams.get('numOfRows') || '100';
 
+  const key = env.PUBLIC_DATA_API_KEY;
+  if (!key) {
+    return new Response(JSON.stringify({ error: 'PUBLIC_DATA_API_KEY가 설정되지 않음' }), {
+      status: 500, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
+    });
+  }
+
   if (!lawdCd || !dealYmd) {
     return new Response(JSON.stringify({ error: 'lawdCd와 dealYmd는 필수입니다.' }), {
       status: 400, headers: { 'content-type': 'application/json' }
@@ -13,7 +20,7 @@ export async function onRequest(context) {
   }
 
   const apiUrl = new URL('https://apis.data.go.kr/1613000/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade');
-  apiUrl.searchParams.set('serviceKey', env.PUBLIC_DATA_API_KEY);
+  apiUrl.searchParams.set('serviceKey', key);
   apiUrl.searchParams.set('LAWD_CD', lawdCd);
   apiUrl.searchParams.set('DEAL_YMD', dealYmd);
   apiUrl.searchParams.set('pageNo', pageNo);
@@ -26,7 +33,7 @@ export async function onRequest(context) {
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
       status: 500, headers: { 'content-type': 'application/json' }
     });
   }
