@@ -232,10 +232,14 @@ async function initMap(trades) {
 function loadKakaoMap() {
   return new Promise((resolve, reject) => {
     if (!kakaoJsKey) { reject(new Error('Kakao JS key 없음')); return; }
+    if (document.querySelector('script[src*="dapi.kakao.com"]')) { resolve(); return; }
     const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services,clusterer&autoload=false`;
-    script.onload = () => kakao.maps.load(resolve);
-    script.onerror = reject;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services,clusterer`;
+    script.onload = () => {
+      const wait = (cb) => { if (window.kakao && window.kakao.maps) cb(); else setTimeout(() => wait(cb), 100); };
+      wait(resolve);
+    };
+    script.onerror = () => reject(new Error('Kakao SDK 로드 실패'));
     document.head.appendChild(script);
   });
 }
@@ -309,8 +313,9 @@ async function updateChart() {
 }
 
 async function fetchSurroundingInfo(trades) {
+  fetchAirQuality();
   const first = trades[0];
-  if (!first) return;
+  if (!first || !first.umdNm) return;
   if (!first.lat || !first.lng) {
     const addr = `${first.umdNm || ''} ${first.aptNm || ''}`.trim();
     if (addr) {
@@ -321,9 +326,7 @@ async function fetchSurroundingInfo(trades) {
       } catch (e) {}
     }
   }
-  if (!first.lat || !first.lng) return;
-  fetchAirQuality();
-  fetchNearbyPlaces(first.lng, first.lat);
+  if (first.lat && first.lng) fetchNearbyPlaces(first.lng, first.lat);
 }
 
 async function fetchAirQuality() {
