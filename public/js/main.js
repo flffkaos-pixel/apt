@@ -22,7 +22,11 @@ function preloadKakaoMap() {
 }
 
 function waitKakao() {
-  return new Promise(r => { const c = () => window.kakao && window.kakao.maps ? r() : setTimeout(c, 100); c(); });
+  return new Promise(r => {
+    const c = () => window.kakao && window.kakao.maps ? r() : setTimeout(c, 100);
+    c();
+    setTimeout(r, 10000);
+  });
 }
 
 function initYearMonth() {
@@ -168,20 +172,35 @@ async function regionSearch(lawdCd, dealYmd) {
 }
 
 async function keywordSearch(keyword) {
-  const resp = await fetch('/api/codes?regExp=^11');
-  const items = await resp.json();
-  const codes = [...new Set(items.map(i => i.code.substring(0, 5)))];
   const now = new Date();
   const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const all = [];
-  for (let i = 0; i < codes.length; i += 5) {
-    const results = await Promise.all(codes.slice(i, i + 5).map(code =>
-      regionSearch(code, ym).catch(() => [])
-    ));
-    for (const trades of results) {
-      all.push(...trades.filter(t => t.aptNm && t.aptNm.includes(keyword)));
+  let codes = ['11680','11650','11710','11440','11170','11200','11215','11230','11350','11410'];
+
+  try {
+    const resp = await fetch(`/api/places?query=${encodeURIComponent(keyword + ' 아파트')}`);
+    const data = await resp.json();
+    const place = (data.documents || [])[0];
+    if (place && place.address_name) {
+      const parts = place.address_name.split(' ');
+      if (parts.length >= 2) {
+        const sidoMap = { '서울':'11','부산':'26','대구':'27','인천':'28','광주':'29','대전':'30','울산':'31','세종':'36','경기':'41','강원':'42','충북':'43','충남':'44','전북':'45','전남':'46','경북':'47','경남':'48','제주':'50' };
+        const sidoCode = sidoMap[parts[0]];
+        if (sidoCode) {
+          const cResp = await fetch(`/api/codes?regExp=^${sidoCode}`);
+          const items = await cResp.json();
+          const guName = parts[1];
+          const found = items.find(i => i.name.includes(guName));
+          if (found) { codes = [found.code.substring(0, 5)]; }
+        }
+      }
     }
-    if (all.length >= 50) break;
+  } catch (e) {}
+
+  const all = [];
+  for (const code of codes) {
+    const trades = await regionSearch(code, ym);
+    all.push(...trades.filter(t => t.aptNm && t.aptNm.includes(keyword)));
+    if (all.length >= 30) break;
   }
   return all;
 }
