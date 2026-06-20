@@ -185,52 +185,56 @@ function renderResults(trades) {
 
 // ---- Kakao Map ----
 async function initMap(trades) {
-  if (typeof kakao === 'undefined') {
-    await loadKakaoMap();
-  }
-  const container = document.getElementById('map');
-  const center = new kakao.maps.LatLng(37.5665, 126.978);
-  if (!map) {
-    map = new kakao.maps.Map(container, { center, level: 7 });
-  }
-
-  mapMarkers.forEach(m => m.setMap(null));
-  mapMarkers = [];
-
-  const bounds = new kakao.maps.LatLngBounds();
-  const seen = new Set();
-  let hasMarker = false;
-
-  for (const t of trades) {
-    if (seen.has(t.aptNm)) continue;
-    seen.add(t.aptNm);
-
-    if (!t.lat || !t.lng) {
-      await geocodeTrade(t);
+  try {
+    if (typeof kakao === 'undefined') {
+      await loadKakaoMap();
     }
-    if (t.lat && t.lng) {
-      const pos = new kakao.maps.LatLng(t.lat, t.lng);
-      const marker = new kakao.maps.Marker({ position: pos, map });
-      const price = parseInt(t.dealAmount?.replace(',','') || '0');
-      const info = new kakao.maps.InfoWindow({
-        content: `<div style="padding:8px;font-size:13px"><b>${t.aptNm}</b><br/>💰 ${t.dealAmount}만원<br/>📐 ${t.excluUseAr}㎡<br/>📅 ${t.dealYear}.${t.dealMonth}</div>`
-      });
-      kakao.maps.event.addListener(marker, 'click', () => info.open(map, marker));
-      mapMarkers.push(marker);
-      bounds.extend(pos);
-      hasMarker = true;
+    const container = document.getElementById('map');
+    const center = new kakao.maps.LatLng(37.5665, 126.978);
+    if (!map) {
+      map = new kakao.maps.Map(container, { center, level: 7 });
     }
-  }
 
-  if (hasMarker) map.setBounds(bounds);
+    mapMarkers.forEach(m => m.setMap(null));
+    mapMarkers = [];
+
+    const bounds = new kakao.maps.LatLngBounds();
+    const seen = new Set();
+    let hasMarker = false;
+
+    for (const t of trades) {
+      if (seen.has(t.aptNm)) continue;
+      seen.add(t.aptNm);
+
+      if (!t.lat || !t.lng) {
+        await geocodeTrade(t);
+      }
+      if (t.lat && t.lng) {
+        const pos = new kakao.maps.LatLng(t.lat, t.lng);
+        const marker = new kakao.maps.Marker({ position: pos, map });
+        const info = new kakao.maps.InfoWindow({
+          content: `<div style="padding:8px;font-size:13px"><b>${t.aptNm}</b><br/>${t.dealAmount}만원<br/>${t.excluUseAr}㎡<br/>${t.dealYear}.${t.dealMonth}</div>`
+        });
+        kakao.maps.event.addListener(marker, 'click', () => info.open(map, marker));
+        mapMarkers.push(marker);
+        bounds.extend(pos);
+        hasMarker = true;
+      }
+    }
+
+    if (hasMarker) map.setBounds(bounds);
+  } catch (e) {
+    console.error('Map init error:', e);
+    document.getElementById('map').innerHTML = '<p style="padding:20px;color:#666">지도를 불러올 수 없습니다. (Kakao API 키/도메인 확인 필요)</p>';
+  }
 }
 
 function loadKakaoMap() {
   return new Promise((resolve, reject) => {
     if (!kakaoJsKey) { reject(new Error('Kakao JS key 없음')); return; }
     const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services,clusterer`;
-    script.onload = resolve;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services,clusterer&autoload=false`;
+    script.onload = () => kakao.maps.load(resolve);
     script.onerror = reject;
     document.head.appendChild(script);
   });
