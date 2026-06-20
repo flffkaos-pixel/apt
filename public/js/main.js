@@ -8,10 +8,22 @@ let kakaoJsKey = '';
 document.addEventListener('DOMContentLoaded', async () => {
   const cfg = await (await fetch('/api/config')).json();
   kakaoJsKey = cfg.kakaoJsKey;
+  preloadKakaoMap();
   initYearMonth();
   loadSido();
   bindEvents();
 });
+
+function preloadKakaoMap() {
+  if (!kakaoJsKey || document.querySelector('script[src*="dapi.kakao.com"]')) return;
+  const s = document.createElement('script');
+  s.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services,clusterer`;
+  document.head.appendChild(s);
+}
+
+function waitKakao() {
+  return new Promise(r => { const c = () => window.kakao && window.kakao.maps ? r() : setTimeout(c, 100); c(); });
+}
 
 function initYearMonth() {
   const yearSel = document.getElementById('yearSelect');
@@ -186,9 +198,7 @@ function renderResults(trades) {
 // ---- Kakao Map ----
 async function initMap(trades) {
   try {
-    if (typeof kakao === 'undefined') {
-      await loadKakaoMap();
-    }
+    await waitKakao();
     const container = document.getElementById('map');
     const center = new kakao.maps.LatLng(37.5665, 126.978);
     if (!map) {
@@ -227,21 +237,6 @@ async function initMap(trades) {
     console.error('Map init error:', e);
     document.getElementById('map').innerHTML = '<p style="padding:20px;color:#666">지도를 불러올 수 없습니다. (Kakao API 키/도메인 확인 필요)</p>';
   }
-}
-
-function loadKakaoMap() {
-  return new Promise((resolve, reject) => {
-    if (!kakaoJsKey) { reject(new Error('Kakao JS key 없음')); return; }
-    if (document.querySelector('script[src*="dapi.kakao.com"]')) { resolve(); return; }
-    const script = document.createElement('script');
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services,clusterer`;
-    script.onload = () => {
-      const wait = (cb) => { if (window.kakao && window.kakao.maps) cb(); else setTimeout(() => wait(cb), 100); };
-      wait(resolve);
-    };
-    script.onerror = () => reject(new Error('Kakao SDK 로드 실패'));
-    document.head.appendChild(script);
-  });
 }
 
 async function geocodeTrade(t) {
