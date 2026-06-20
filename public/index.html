@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>아파트 실거래가 & 동네정보</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.css" />
   <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    #map { width: 100%; height: 400px; }
+  </style>
 </head>
 <body>
   <header>
@@ -17,19 +19,12 @@
   </header>
 
   <main>
-    <!-- 검색 섹션 -->
     <section class="search-section">
       <div class="search-box">
         <div class="search-row">
-          <select id="sidoSelect">
-            <option value="">시/도 선택</option>
-          </select>
-          <select id="sggSelect" disabled>
-            <option value="">시/군/구 선택</option>
-          </select>
-          <select id="dongSelect" disabled>
-            <option value="">읍/면/동 선택</option>
-          </select>
+          <select id="sidoSelect"><option value="">시/도 선택</option></select>
+          <select id="sggSelect" disabled><option value="">시/군/구 선택</option></select>
+          <select id="dongSelect" disabled><option value="">읍/면/동 선택</option></select>
           <select id="yearSelect"></select>
           <select id="monthSelect"></select>
           <button id="searchBtn" disabled>조회하기</button>
@@ -43,96 +38,52 @@
       </div>
     </section>
 
-    <!-- 로딩 -->
     <div id="loading" class="loading hidden">
       <div class="spinner"></div>
       <span>데이터를 불러오는 중...</span>
     </div>
 
-    <!-- 결과 섹션 -->
     <section id="resultSection" class="result-section hidden">
       <div class="result-grid">
-        <!-- 지도 -->
         <div class="card map-card">
           <div class="card-header"><span>📍</span> 위치 지도</div>
           <div id="map" class="map-container"></div>
         </div>
-
-        <!-- 실거래가 차트 -->
         <div class="card chart-card">
           <div class="card-header"><span>📈</span> 실거래가 추이</div>
-          <div class="chart-wrapper">
-            <canvas id="priceChart"></canvas>
-          </div>
+          <div class="chart-wrapper"><canvas id="priceChart"></canvas></div>
           <div class="chart-controls">
             <select id="chartAptSelect"><option value="">아파트 선택</option></select>
             <label><input type="checkbox" id="showRent" /> 전월세 포함</label>
           </div>
         </div>
-
-        <!-- 실거래가 테이블 -->
         <div class="card table-card">
           <div class="card-header"><span>📋</span> 최근 실거래가</div>
           <div class="table-wrapper">
             <table id="tradeTable">
-              <thead>
-                <tr>
-                  <th>아파트명</th>
-                  <th>거래금액</th>
-                  <th>면적(㎡)</th>
-                  <th>층</th>
-                  <th>거래일</th>
-                </tr>
-              </thead>
+              <thead><tr><th>아파트명</th><th>거래금액</th><th>면적(㎡)</th><th>층</th><th>거래일</th></tr></thead>
               <tbody id="tradeTableBody"></tbody>
             </table>
           </div>
         </div>
-
-        <!-- 주변 정보 -->
         <div class="card info-card">
           <div class="card-header"><span>🌤</span> 주변 생활정보</div>
           <div class="info-grid">
-            <div class="info-item">
-              <div class="info-label">🌫 미세먼지</div>
-              <div id="airQuality" class="info-value">-</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">🚇 지하철</div>
-              <div id="subwayInfo" class="info-value">-</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">🏫 학교</div>
-              <div id="schoolInfo" class="info-value">-</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">🏪 편의시설</div>
-              <div id="convenienceInfo" class="info-value">-</div>
-            </div>
+            <div class="info-item"><div class="info-label">🌫 미세먼지</div><div id="airQuality" class="info-value">-</div></div>
+            <div class="info-item"><div class="info-label">🚇 지하철</div><div id="subwayInfo" class="info-value">-</div></div>
+            <div class="info-item"><div class="info-label">🏫 학교</div><div id="schoolInfo" class="info-value">-</div></div>
+            <div class="info-item"><div class="info-label">🏪 편의시설</div><div id="convenienceInfo" class="info-value">-</div></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 통계 요약 -->
     <section id="statsSection" class="stats-section hidden">
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number" id="statCount">0</div>
-          <div class="stat-label">조회된 거래</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="statMax">-</div>
-          <div class="stat-label">최고가</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="statMin">-</div>
-          <div class="stat-label">최저가</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="statAvg">-</div>
-          <div class="stat-label">평균가</div>
-        </div>
+        <div class="stat-card"><div class="stat-number" id="statCount">0</div><div class="stat-label">조회된 거래</div></div>
+        <div class="stat-card"><div class="stat-number" id="statMax">-</div><div class="stat-label">최고가</div></div>
+        <div class="stat-card"><div class="stat-number" id="statMin">-</div><div class="stat-label">최저가</div></div>
+        <div class="stat-card"><div class="stat-number" id="statAvg">-</div><div class="stat-label">평균가</div></div>
       </div>
     </section>
   </main>
@@ -141,8 +92,7 @@
     <p>📊 국토교통부 실거래가 공개시스템 · 기상청 · 카카오맵 데이터 기반</p>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <script src="/js/main.js"></script>
 </body>
 </html>
