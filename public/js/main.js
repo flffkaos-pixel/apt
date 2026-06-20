@@ -122,9 +122,9 @@ async function fetchTrades(lawdCd, dealYmd, keyword) {
       allTrades = await regionSearch(lawdCd, dealYmd);
     }
     if (allTrades.length === 0) { alert('검색 결과가 없습니다.'); loading.classList.add('hidden'); return; }
-    renderResults(allTrades);
     document.getElementById('resultSection').classList.remove('hidden');
     document.getElementById('statsSection').classList.remove('hidden');
+    renderResults(allTrades);
   } catch (e) {
     console.error(e);
     alert('데이터 조회 중 오류가 발생했습니다.');
@@ -156,16 +156,19 @@ async function regionSearch(lawdCd, dealYmd) {
 }
 
 async function keywordSearch(keyword) {
-  const targetGu = [
-    { name: '강남구', code: '11680' }, { name: '서초구', code: '11650' },
-    { name: '송파구', code: '11710' }, { name: '마포구', code: '11440' }, { name: '용산구', code: '11170' },
-  ];
+  const resp = await fetch('/api/codes?regExp=^11');
+  const items = await resp.json();
+  const codes = [...new Set(items.map(i => i.code.substring(0, 5)))];
   const now = new Date();
   const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
   const all = [];
-  for (const gu of targetGu) {
-    const trades = await regionSearch(gu.code, ym);
-    all.push(...trades.filter(t => t.aptNm && t.aptNm.includes(keyword)));
+  for (let i = 0; i < codes.length; i += 5) {
+    const results = await Promise.all(codes.slice(i, i + 5).map(code =>
+      regionSearch(code, ym).catch(() => [])
+    ));
+    for (const trades of results) {
+      all.push(...trades.filter(t => t.aptNm && t.aptNm.includes(keyword)));
+    }
     if (all.length >= 50) break;
   }
   return all;
