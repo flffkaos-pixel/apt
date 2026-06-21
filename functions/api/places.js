@@ -6,16 +6,16 @@ export async function onRequest(context) {
   const y = url.searchParams.get('y');
   const radius = url.searchParams.get('radius') || '1000';
 
-  if (!query || !x || !y) {
-    return new Response(JSON.stringify({ error: 'query, x, y는 필수입니다.' }), {
+  if (!query) {
+    return new Response(JSON.stringify({ error: 'query는 필수입니다.' }), {
       status: 400, headers: { 'content-type': 'application/json' }
     });
   }
 
   const apiUrl = new URL('https://dapi.kakao.com/v2/local/search/keyword.json');
   apiUrl.searchParams.set('query', query);
-  apiUrl.searchParams.set('x', x);
-  apiUrl.searchParams.set('y', y);
+  if (x) apiUrl.searchParams.set('x', x);
+  if (y) apiUrl.searchParams.set('y', y);
   apiUrl.searchParams.set('radius', radius);
 
   try {
