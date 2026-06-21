@@ -172,8 +172,7 @@ async function regionSearch(lawdCd, dealYmd) {
 }
 
 async function keywordSearch(keyword) {
-  const now = new Date();
-  const ym = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const ym = `${document.getElementById('yearSelect').value}${document.getElementById('monthSelect').value}`;
   let codes = ['11680','11650','11710','11440','11170','11200','11215','11230','11350','11410'];
 
   try {
