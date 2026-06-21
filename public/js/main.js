@@ -253,7 +253,7 @@ async function initMap(trades) {
     if (hasMarker) map.setBounds(bounds);
   } catch (e) {
     console.error('Map init error:', e);
-    document.getElementById('map').innerHTML = '<p style="padding:20px;color:#666">지도를 불러올 수 없습니다. (Kakao API 키/도메인 확인 필요)</p>';
+    document.getElementById('map').innerHTML = '<p style="padding:20px;color:#666">지도를 불러올 수 없습니다.</p><p style="padding:0 20px 12px;font-size:13px;color:#999">카카오 개발자콘솔 > JavaScript 키 > JavaScript SDK 도메인에 <b>aptscouter.pages.dev</b> 가 정확히 등록되었는지 확인하세요. (https:// 없이)</p>';
   }
 }
 
@@ -359,7 +359,7 @@ async function fetchNearbyPlaces(x, y) {
     const subwayData = await subwayResp.json();
     const subways = subwayData.documents || [];
     document.getElementById('subwayInfo').textContent = subways.length > 0 ? subways.slice(0, 3).map(s => s.place_name).join(', ') : '반경 500m 내 없음';
-    const schoolResp = await fetch(`/api/places?query=학교&x=${x}&y=${y}&radius=500`);
+    const schoolResp = await fetch(`/api/places?query=초등학교&x=${x}&y=${y}&radius=500`);
     const schoolData = await schoolResp.json();
     const schools = schoolData.documents || [];
     document.getElementById('schoolInfo').textContent = schools.length > 0 ? schools.slice(0, 3).map(s => s.place_name).join(', ') : '반경 500m 내 없음';

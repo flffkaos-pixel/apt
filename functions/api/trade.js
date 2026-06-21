@@ -45,6 +45,7 @@ export async function onRequest(context) {
     apiUrl.searchParams.set('serviceKey', env.PUBLIC_DATA_API_KEY);
     apiUrl.searchParams.set('LAWD_CD', lawdCd);
     apiUrl.searchParams.set('DEAL_YMD', dealYmd);
+    apiUrl.searchParams.set('numOfRows', '100');
 
     const resp = await fetch(apiUrl.toString(), { signal: AbortSignal.timeout(10000) });
     const text = await resp.text();
