@@ -23,9 +23,9 @@ function preloadKakaoMap() {
 
 function waitKakao() {
   return new Promise(r => {
-    const c = () => window.kakao && window.kakao.maps ? r() : setTimeout(c, 100);
+    const c = () => window.kakao && window.kakao.maps && window.kakao.maps.Map ? r() : setTimeout(c, 100);
     c();
-    setTimeout(r, 10000);
+    setTimeout(r, 15000);
   });
 }
 
