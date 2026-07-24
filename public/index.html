@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AptScouter — 아파트 실거래가 분석</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+  </style>
+</head>
+<body class="bg-[var(--surface)] text-[var(--text-primary)] min-h-screen">
+  <!-- Top Navigation -->
+  <header class="bg-white border-b border-[var(--border)] sticky top-0 z-50">
+    <div class="flex items-center justify-between max-w-[1280px] mx-auto px-6 h-[72px]">
+      <div class="flex items-center gap-8">
+        <a href="/" class="text-2xl font-extrabold tracking-tight" style="color:var(--cobalt-700)">AptScouter</a>
+        <nav class="hidden md:flex gap-6 text-sm font-medium text-[var(--text-secondary)]">
+          <a href="#" class="text-[var(--cobalt-700)] border-b-2 border-[var(--cobalt-700)] pb-1">실거래가</a>
+          <a href="#" class="hover:text-[var(--cobalt-700)] transition-colors">인사이트</a>
+          <a href="#" class="hover:text-[var(--cobalt-700)] transition-colors">저장</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-4">
+        <div id="authArea" class="flex items-center gap-3">
+          <button id="loginBtn" onclick="location.href='/api/auth/google'" class="hidden md:flex items-center gap-2 px-4 py-2 bg-[var(--cobalt-700)] text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-all">Google 로그인</button>
+          <div id="userInfo" class="hidden flex items-center gap-3">
+            <img id="userPic" src="" alt="" class="w-8 h-8 rounded-full border-2 border-[var(--border)]">
+            <span id="userName" class="text-sm font-medium text-[var(--text-primary)]"></span>
+            <span id="subBadge" class="hidden px-2 py-0.5 bg-[var(--amber)] text-white text-[11px] font-bold rounded-full">PRO</span>
+            <button onclick="location.href='/api/auth/logout'" class="text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">로그아웃</button>
+          </div>
+        </div>
+        <button onclick="showSubscribeModal()" class="hidden sm:flex items-center gap-2 px-4 py-2 border-2 border-[var(--cobalt-700)] text-[var(--cobalt-700)] rounded-lg text-sm font-bold hover:bg-[var(--cobalt-700)] hover:text-white transition-all">
+          <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL'1">star</span> 프리미엄
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Alert -->
+  <div id="subAlert" class="hidden max-w-[1280px] mx-auto mt-4 px-6"></div>
+
+  <main class="max-w-[1280px] mx-auto px-4 md:px-6 py-6">
+    <!-- Search -->
+    <section class="mb-6">
+      <div class="bg-white/80 backdrop-blur-md border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="material-symbols-outlined text-[var(--cobalt-700)] text-2xl">search</span>
+          <h2 class="text-xl font-bold text-[var(--cobalt-700)]">아파트 실거래가 조회</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-3 mb-3">
+          <div>
+            <label class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5 block">시/도</label>
+            <select id="sidoSelect" class="w-full bg-white border border-[var(--border)] rounded-lg py-1.5 sm:py-2.5 px-2 sm:px-4 text-xs sm:text-sm appearance-none truncate"><option value="">시/도</option><option value="11">서울</option><option value="26">부산</option><option value="27">대구</option><option value="28">인천</option><option value="29">광주</option><option value="30">대전</option><option value="31">울산</option><option value="36">세종</option><option value="41">경기</option><option value="42">강원</option><option value="43">충북</option><option value="44">충남</option><option value="45">전북</option><option value="46">전남</option><option value="47">경북</option><option value="48">경남</option><option value="50">제주</option></select>
+          </div>
+          <div>
+            <label class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5 block">시/군/구</label>
+            <select id="sggSelect" disabled class="w-full bg-white border border-[var(--border)] rounded-lg py-1.5 sm:py-2.5 px-2 sm:px-4 text-xs sm:text-sm appearance-none truncate"><option value="">선택</option></select>
+          </div>
+          <div>
+            <label class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5 block">읍/면/동</label>
+            <select id="dongSelect" disabled class="w-full bg-white border border-[var(--border)] rounded-lg py-1.5 sm:py-2.5 px-2 sm:px-4 text-xs sm:text-sm appearance-none truncate"><option value="">선택</option></select>
+          </div>
+          <div>
+            <label class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-0.5 block">년월</label>
+            <div class="flex gap-1 sm:gap-2">
+              <select id="yearSelect" class="flex-1 bg-white border border-[var(--border)] rounded-lg py-1.5 sm:py-2.5 px-1 sm:px-2 text-xs sm:text-sm appearance-none"><option value="2026">26</option><option value="2025">25</option><option value="2024">24</option><option value="2023">23</option><option value="2022">22</option><option value="2021">21</option><option value="2020">20</option><option value="2019">19</option><option value="2018">18</option></select>
+              <select id="monthSelect" class="flex-1 bg-white border border-[var(--border)] rounded-lg py-1.5 sm:py-2.5 px-1 sm:px-2 text-xs sm:text-sm appearance-none"><option value="01">1</option><option value="02">2</option><option value="03">3</option><option value="04">4</option><option value="05">5</option><option value="06">6</option><option value="07">7</option><option value="08">8</option><option value="09">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+            </div>
+          </div>
+          <div class="flex items-end">
+            <button id="searchBtn" disabled onclick="if(window.selectedSgg)searchByRegion()" class="w-full py-1.5 sm:py-2.5 px-3 sm:px-6 bg-[var(--cobalt-700)] text-white rounded-lg text-xs sm:text-sm font-bold hover:bg-[var(--cobalt-800)] transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">조회</button>
+          </div>
+        </div>
+        <div class="relative">
+          <input id="keywordInput" type="text" onkeydown="if(event.key==='Enter'&&typeof searchByKeyword==='function')searchByKeyword()" placeholder="아파트명으로 검색 (예: 래미안)" class="w-full bg-white border border-[var(--border)] rounded-lg py-2.5 pl-10 pr-24 text-sm">
+          <span class="material-symbols-outlined absolute left-3 top-2.5 text-[var(--text-muted)] text-lg">search</span>
+          <button id="keywordSearchBtn" onclick="if(typeof searchByKeyword==='function')searchByKeyword()" class="absolute right-1.5 top-1.5 px-5 py-1.5 bg-[var(--cobalt-600)] text-white rounded-md text-sm font-semibold hover:bg-[var(--cobalt-800)] transition-all">검색</button>
+        </div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 text-sm">
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="apt" checked class="accent-[var(--cobalt-600)] w-4 h-4"> 아파트 매매</label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="apt-rent" class="accent-[var(--cobalt-600)] w-4 h-4"> 아파트 전월세</label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="house" class="accent-[var(--cobalt-600)] w-4 h-4"> 단독/다가구 매매</label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="house-rent" class="accent-[var(--cobalt-600)] w-4 h-4"> 단독/다가구 전월세</label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="townhouse" class="accent-[var(--cobalt-600)] w-4 h-4"> 연립다세대 매매</label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="townhouse-rent" class="accent-[var(--cobalt-600)] w-4 h-4"> 연립다세대 전월세</label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="officetel" class="accent-[var(--cobalt-600)] w-4 h-4"> 오피스텔 매매</label>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none"><input type="checkbox" name="aptType" value="officetel-rent" class="accent-[var(--cobalt-600)] w-4 h-4"> 오피스텔 전월세</label>
+        </div>
+        <div class="mt-4 pt-4 border-t border-[var(--border)]">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-[var(--amber)] text-base">lightbulb</span>
+            <span class="text-sm font-bold text-[var(--text-primary)]">예산으로 추천받기</span>
+            <span class="text-[10px] bg-[var(--amber)] text-white px-1.5 py-0.5 rounded font-bold">NEW</span>
+          </div>
+          <div id="budgetFilter" class="flex flex-wrap gap-1.5">
+            <button class="budget-btn active" data-min="0" data-max="0">전체</button>
+            <button class="budget-btn" data-min="0" data-max="30000">3억↓</button>
+            <button class="budget-btn" data-min="30000" data-max="50000">3~5억</button>
+            <button class="budget-btn" data-min="50000" data-max="100000">5~10억</button>
+            <button class="budget-btn" data-min="100000" data-max="999999">10억↑</button>
+          </div>
+          <div class="flex items-center gap-2 mt-2 text-xs text-[var(--text-muted)]">
+            <span>직접 입력</span>
+            <input id="budgetMinInput" type="number" placeholder="최소(만원)" class="w-24 border border-[var(--border)] rounded-lg py-1 px-2 text-xs">
+            <span>~</span>
+            <input id="budgetMaxInput" type="number" placeholder="최대(만원)" class="w-24 border border-[var(--border)] rounded-lg py-1 px-2 text-xs">
+            <button id="budgetApplyBtn" class="px-3 py-1 bg-[var(--amber)] text-white rounded-lg text-xs font-bold hover:bg-[var(--cobalt-800)]">적용</button>
+            <span id="budgetResult" class="text-xs text-[var(--text-muted)] hidden"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 차별점 소개 -->
+    <section class="mb-6">
+      <div class="bg-gradient-to-r from-[var(--cobalt-700)] via-[var(--cobalt-800)] to-[var(--cobalt-600)] rounded-2xl p-6 text-white shadow-md">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
+          <div>
+            <div class="text-2xl font-extrabold mb-1">8</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">부동산 유형 통합</div>
+            <div class="text-[11px] opacity-60">아파트/단독/연립/오피스텔 × 매매/전월세</div>
+          </div>
+          <div>
+            <div class="text-2xl font-extrabold mb-1">🏛️</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">국토부 실거래가</div>
+            <div class="text-[11px] opacity-60">허위매물 없음 · 실제 거래 데이터</div>
+          </div>
+          <div>
+            <div class="text-2xl font-extrabold mb-1">💰</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">예산 기반 추천</div>
+            <div class="text-[11px] opacity-60">내 예산으로 살 수 있는 매물</div>
+          </div>
+          <div>
+            <div class="text-2xl font-extrabold mb-1">🗺️</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">컬러 지도</div>
+            <div class="text-[11px] opacity-60">유형별 마커 + 전매물 표시</div>
+          </div>
+          <div>
+            <div class="text-2xl font-extrabold mb-1">📊</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">전세가율 + 가치</div>
+            <div class="text-[11px] opacity-60">매매/전세 비교 · 가성비 평가</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden flex flex-col items-center justify-center py-20">
+      <div class="w-8 h-8 border-3 border-[var(--border)] border-t-[var(--cobalt-600)] rounded-full animate-spin mb-3"></div>
+      <span class="text-sm text-[var(--text-muted)]">데이터를 불러오는 중...</span>
+    </div>
+
+    <!-- Premium Banner (shown when not subscribed) -->
+    <div id="premiumBanner" class="mb-6">
+      <div class="bg-gradient-to-r from-[var(--cobalt-800)] to-[var(--cobalt-700)] text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-[var(--amber)]" style="font-variation-settings:'FILL'1">lock</span>
+            <span class="font-bold text-lg">프리미엄 분석</span>
+          </div>
+          <p class="text-sm opacity-90">㎡당 정확한 시세 · 인근 단지 비교 · 엑셀 다운로드</p>
+        </div>
+        <button onclick="showSubscribeModal()" class="flex-shrink-0 px-6 py-2.5 bg-white text-[var(--cobalt-700)] rounded-xl font-bold hover:scale-[1.02] transition-transform">구독하기 (월 3,900원)</button>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <section id="resultSection" class="hidden">
+      <!-- Type Tabs -->
+      <div id="dealTypeTabs" class="flex gap-1 mb-4 text-sm font-medium"></div>
+      <div id="dongFilter" class="flex items-center mb-3"></div>
+      <div id="typeTabs" class="flex flex-wrap gap-1.5 mb-4"></div>
+
+      <!-- Top Row: Premium + Chart side by side -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+        <!-- Premium Summary Card -->
+        <div class="hidden lg:flex flex-col bg-gradient-to-br from-[var(--cobalt-800)] to-[var(--cobalt-700)] text-white rounded-2xl p-6 shadow-lg">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="material-symbols-outlined text-[var(--amber)]" style="font-variation-settings:'FILL'1">analytics</span>
+              <span class="font-bold text-lg">Premium</span>
+            </div>
+            <p class="text-sm opacity-90 mb-4">전문가를 위한 상세 시세 분석</p>
+            <ul class="space-y-2 mb-6">
+              <li class="flex items-center gap-2 text-sm"><span class="material-symbols-outlined text-emerald-400 text-base">check_circle</span> ㎡당 정확한 실거래 시세</li>
+              <li class="flex items-center gap-2 text-sm"><span class="material-symbols-outlined text-emerald-400 text-base">check_circle</span> 인근 단지 가격 비교</li>
+              <li class="flex items-center gap-2 text-sm"><span class="material-symbols-outlined text-emerald-400 text-base">check_circle</span> 엑셀 다운로드</li>
+            </ul>
+          </div>
+          <button onclick="showSubscribeModal()" class="w-full py-3 bg-white text-[var(--cobalt-700)] rounded-xl font-bold hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+            구독하기 <span class="material-symbols-outlined text-lg">arrow_forward</span>
+          </button>
+        </div>
+
+        <!-- Chart Card -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-[var(--border)] p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-[var(--text-primary)]">📈 실거래가 추이</h3>
+              <p class="text-xs text-[var(--text-muted)] mt-0.5">월별 평균 거래가 추이</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <select id="chartAptSelect" onchange="if(typeof updateChart==='function')updateChart()" class="text-xs border border-[var(--border)] rounded-lg py-1.5 px-3 bg-white appearance-none"><option value="">전체</option></select>
+              <label class="flex items-center gap-1.5 text-xs text-[var(--text-muted)] cursor-pointer select-none">
+                <input type="checkbox" id="showRent" onchange="if(typeof updateChart==='function')updateChart()" class="w-3.5 h-3.5 accent-[var(--cobalt-600)]"> 전월세 포함
+              </label>
+            </div>
+          </div>
+          <div class="h-[200px] relative">
+            <canvas id="priceChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <section id="statsSection" class="grid grid-cols-3 md:grid-cols-8 gap-2 mb-4">
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">거래 수</div>
+          <div class="text-xl font-bold text-[var(--cobalt-700)]" id="statCount">0</div>
+        </div>
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">최고가</div>
+          <div class="text-xl font-bold text-[var(--cobalt-700)]" id="statMax">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">최저가</div>
+          <div class="text-xl font-bold text-[var(--cobalt-700)]" id="statMin">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">평균가</div>
+          <div class="text-xl font-bold text-[var(--cobalt-700)]" id="statAvg">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">㎡당</div>
+          <div class="text-xl font-bold text-[var(--cobalt-700)]" id="statAvgPsm">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">진단 점수</div>
+          <div class="text-xl font-bold text-[var(--green)]" id="statScore">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">전세가율</div>
+          <div class="text-xl font-bold text-[var(--amber)]" id="statJeonse">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-[var(--border)] p-4 text-center shadow-sm">
+          <div class="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider mb-1">상승률</div>
+          <div class="text-xl font-bold text-[var(--red)]" id="statTrend">-</div>
+        </div>
+      </section>
+
+      <!-- Table + Info side by side -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+        <!-- Table -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-[var(--border)] overflow-hidden shadow-sm">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+            <h3 class="font-bold text-[var(--text-primary)]">📋 최근 실거래가</h3>
+            <button id="downloadBtn" onclick="if(typeof downloadCSV==='function')downloadCSV()" class="btn-sm flex items-center gap-1.5 text-xs px-3 py-1.5 border border-[var(--border)] rounded-lg hover:bg-[var(--cobalt-50)] transition-colors">
+              <span class="material-symbols-outlined text-base">download</span> 엑셀
+            </button>
+          </div>
+          <div class="overflow-x-auto max-h-[440px]">
+            <table id="tradeTable" class="w-full text-left">
+              <thead>
+                <tr class="bg-[var(--cobalt-50)] text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                  <th class="px-5 py-3">아파트명</th>
+                  <th class="px-5 py-3">거래금액</th>
+                  <th class="px-5 py-3">면적(㎡)</th>
+                  <th class="px-5 py-3">㎡당가</th>
+                  <th class="px-5 py-3">층</th>
+                  <th class="px-5 py-3">거래일</th>
+                  <th class="px-5 py-3">유형</th>
+                  <th class="px-5 py-3"></th>
+                </tr>
+              </thead>
+              <tbody id="tradeTableBody" class="divide-y divide-[var(--border)] text-sm"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right Sidebar: Info + Map -->
+        <div class="space-y-5">
+          <!-- Info Card -->
+          <div class="info-card bg-white rounded-2xl border border-[var(--border)] p-5 shadow-sm">
+            <h3 class="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[var(--cobalt-600)]">cloud</span>
+              <span class="card-header-text">주변 생활정보</span>
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-[var(--cobalt-50)] rounded-xl p-4 text-center">
+                <div class="material-symbols-outlined text-emerald-600 mb-1">air</div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">미세먼지</div>
+                <div id="airQuality" class="text-sm font-bold text-[var(--text-primary)]">-</div>
+              </div>
+              <div class="bg-[var(--cobalt-50)] rounded-xl p-4 text-center">
+                <div class="material-symbols-outlined text-[var(--cobalt-600)] mb-1">subway</div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">지하철</div>
+                <div id="subwayInfo" class="text-sm font-bold text-[var(--text-primary)]">-</div>
+              </div>
+              <div class="bg-[var(--cobalt-50)] rounded-xl p-4 text-center">
+                <div class="material-symbols-outlined text-[var(--amber)] mb-1">school</div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">초등학교</div>
+                <div id="schoolInfo" class="text-sm font-bold text-[var(--text-primary)]">-</div>
+              </div>
+              <div class="bg-[var(--cobalt-50)] rounded-xl p-4 text-center">
+                <div class="material-symbols-outlined text-[var(--cobalt-700)] mb-1">storefront</div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">편의시설</div>
+                <div id="convenienceInfo" class="text-sm font-bold text-[var(--text-primary)]">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Map -->
+          <div class="bg-white rounded-2xl border border-[var(--border)] overflow-hidden shadow-sm h-[300px]">
+            <div id="map" class="w-full h-full"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report -->
+      <section id="reportSection" class="hidden bg-white rounded-2xl border border-[var(--border)] shadow-sm mb-5">
+        <div class="px-6 py-4 border-b border-[var(--border)]">
+          <h3 class="font-bold text-[var(--text-primary)]">📊 중개사 전용 시세분석</h3>
+        </div>
+        <div id="reportContent" class="p-5"></div>
+      </section>
+
+      <!-- 가성비 Top 3 (예산 필터 활성화 시) -->
+      <section id="topValueSection" class="hidden bg-white rounded-2xl border border-[var(--border)] shadow-sm mb-5">
+        <div class="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[var(--amber)]">emoji_events</span>
+          <h3 class="font-bold text-[var(--text-primary)]">가성비 Top 3</h3>
+        </div>
+        <div id="topValueContent" class="p-5"></div>
+      </section>
+
+      <!-- 자치구 랭킹 -->
+      <section id="rankSection" class="hidden bg-white rounded-2xl border border-[var(--border)] shadow-sm mb-5">
+        <div class="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
+          <span class="material-symbols-outlined text-[var(--cobalt-600)]">stadia_altitude</span>
+          <h3 class="font-bold text-[var(--text-primary)]">자치구 랭킹</h3>
+        </div>
+        <div id="rankContent" class="p-5"></div>
+      </section>
+    </section>
+
+    <!-- Saved Section -->
+    <div id="savedSection" class="hidden mb-5">
+      <div class="bg-white rounded-2xl border border-[var(--border)] shadow-sm">
+        <div class="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
+          <span class="text-lg">⭐</span> 저장한 아파트 <span id="savedCount" class="bg-[var(--cobalt-600)] text-white text-[11px] px-2 py-0.5 rounded-full font-bold">0</span>
+          <button id="compareBtn" class="ml-auto px-3 py-1 bg-[var(--cobalt-600)] text-white text-xs font-bold rounded-lg hover:bg-[var(--cobalt-800)] hidden">비교하기</button>
+        </div>
+        <div id="savedList" class="p-5"><p class="empty-msg text-sm text-[var(--text-muted)]">저장한 아파트가 없습니다.</p></div>
+      </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div id="compareModal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeCompare()">
+      <div class="bg-white rounded-2xl max-w-[800px] w-full max-h-[80vh] overflow-auto p-6 relative">
+        <button onclick="closeCompare()" class="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-2xl leading-none">&times;</button>
+        <h3 class="font-bold text-lg mb-4">📊 관심 매물 비교</h3>
+        <div id="compareContent" class="overflow-x-auto"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-[var(--border)] mt-8">
+    <div class="max-w-[1280px] mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="text-center md:text-left">
+        <div class="text-xl font-extrabold tracking-tight" style="color:var(--cobalt-700)">AptScouter</div>
+        <p class="text-xs text-[var(--text-muted)] mt-1">국토교통부 실거래가 · 기상청 · 카카오맵</p>
+      </div>
+      <div class="text-xs text-[var(--text-muted)]">📢 광고 문의: <a href="mailto:admin@aptscouter.pages.dev" class="text-[var(--cobalt-600)] hover:underline">admin@aptscouter.pages.dev</a></div>
+    </div>
+  </footer>
+
+  <!-- Subscribe Modal -->
+  <div id="subscribeModal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onclick="if(event.target===this)closeSubscribeModal()">
+    <div class="bg-white rounded-2xl max-w-[400px] w-full p-8 relative">
+      <button onclick="closeSubscribeModal()" class="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-2xl leading-none">&times;</button>
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-2">🏠</div>
+        <h2 class="text-xl font-bold text-[var(--text-primary)]">프리미엄 구독</h2>
+        <p class="text-sm text-[var(--text-muted)] mt-1">무제한 조회 · 엑셀 다운로드 · 인근 단지 비교</p>
+      </div>
+      <div class="text-center mb-6">
+        <span class="text-3xl font-extrabold" style="color:var(--cobalt-700)">3,900원</span>
+        <span class="text-sm text-[var(--text-muted)]"> / 월</span>
+      </div>
+      <ul class="space-y-2 mb-6">
+        <li class="flex items-center gap-2 text-sm"><span class="material-symbols-outlined text-emerald-600 text-base" style="font-variation-settings:'FILL'1">check_circle</span> 무제한 실거래가 조회</li>
+        <li class="flex items-center gap-2 text-sm"><span class="material-symbols-outlined text-emerald-600 text-base" style="font-variation-settings:'FILL'1">check_circle</span> CSV/엑셀 다운로드</li>
+        <li class="flex items-center gap-2 text-sm"><span class="material-symbols-outlined text-emerald-600 text-base" style="font-variation-settings:'FILL'1">check_circle</span> 인근 단지 가격 비교</li>
+      </ul>
+      <div id="loginRequiredMsg" class="hidden text-sm text-center text-[var(--amber)] mb-3">로그인이 필요합니다.</div>
+      <button id="payBtn" onclick="startPayment()" class="w-full py-3 bg-[var(--cobalt-700)] text-white rounded-xl font-bold hover:bg-[var(--cobalt-800)] transition-all">PayPal로 결제하기</button>
+      <div id="paypal-button-container" class="hidden mt-3"></div>
+      <p class="text-xs text-center text-[var(--text-muted)] mt-3">월 3,900원 (USD $3.90) · 신용카드 · PayPal</p>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script>
+  // SGG data + handler: main.js와 완전 독립
+  const __SGG = {
+    '11':'11110:종로구,11140:중구,11170:용산구,11200:성동구,11215:광진구,11230:동대문구,11245:중랑구,11260:성북구,11275:강북구,11290:도봉구,11305:노원구,11320:은평구,11350:서대문구,11380:마포구,11410:양천구,11440:강서구,11470:구로구,11500:금천구,11530:영등포구,11545:동작구,11560:관악구,11590:서초구,11620:강남구,11650:송파구,11680:강동구',
+    '26':'26110:중구,26140:서구,26170:동구,26200:영도구,26230:부산진구,26260:동래구,26290:남구,26320:북구,26350:해운대구,26380:사하구,26410:금정구,26440:강서구,26470:연제구,26500:수영구,26530:사상구,26710:기장군',
+    '27':'27110:중구,27140:동구,27170:서구,27200:남구,27230:북구,27260:수성구,27290:달서구,27710:달성군',
+    '28':'28110:중구,28140:동구,28170:미추홀구,28200:연수구,28230:남동구,28237:부평구,28245:계양구,28260:서구,28710:강화군,28720:옹진군',
+    '29':'29110:동구,29140:서구,29155:남구,29170:북구,29200:광산구',
+    '30':'30110:동구,30140:중구,30170:서구,30200:유성구,30230:대덕구',
+    '31':'31110:중구,31140:남구,31170:동구,31200:북구,31710:울주군',
+    '36':'36110:세종특별자치시',
+    '41':'41111:수원시 장안구,41113:수원시 권선구,41115:수원시 팔달구,41117:수원시 영통구,41131:성남시 수정구,41133:성남시 중원구,41135:성남시 분당구,41151:의정부시,41171:안양시 만안구,41173:안양시 동안구,41192:부천시,41210:광명시,41220:평택시,41250:동두천시,41271:안산시 상록구,41273:안산시 단원구,41281:고양시 덕양구,41285:고양시 일산동구,41287:고양시 일산서구,41290:과천시,41310:구리시,41320:남양주시,41350:오산시,41360:시흥시,41370:군포시,41380:의왕시,41390:하남시,41410:용인시 처인구,41413:용인시 기흥구,41415:용인시 수지구,41430:파주시,41450:이천시,41460:안성시,41470:김포시,41480:화성시,41490:광주시,41500:양주시,41550:포천시,41570:여주시,41800:연천군,41820:가평군,41830:양평군',
+    '42':'42110:춘천시,42130:원주시,42150:강릉시,42170:동해시,42190:태백시,42210:속초시,42230:삼척시,42720:홍천군,42730:횡성군,42750:영월군,42760:평창군,42770:정선군,42780:철원군,42790:화천군,42800:양구군,42810:인제군,42820:고성군,42830:양양군',
+    '43':'43111:청주시 상당구,43112:청주시 서원구,43113:청주시 흥덕구,43114:청주시 청원구,43130:충주시,43150:제천시,43720:보은군,43730:옥천군,43740:영동군,43750:증평군,43760:진천군,43770:괴산군,43780:음성군,43800:단양군',
+    '44':'44131:천안시 동남구,44133:천안시 서북구,44150:공주시,44180:보령시,44200:아산시,44210:서산시,44230:논산시,44250:계룡시,44270:당진시,44710:금산군,44760:부여군,44770:서천군,44790:청양군,44800:홍성군,44810:예산군,44825:태안군',
+    '45':'45111:전주시 완산구,45113:전주시 덕진구,45130:군산시,45140:익산시,45180:정읍시,45190:남원시,45210:김제시,45710:완주군,45720:진안군,45730:무주군,45740:장수군,45750:임실군,45770:순창군,45790:고창군,45800:부안군',
+    '46':'46110:목포시,46130:여수시,46150:순천시,46170:나주시,46230:광양시,46710:담양군,46720:곡성군,46730:구례군,46770:고흥군,46780:보성군,46790:화순군,46800:장흥군,46810:강진군,46820:해남군,46830:영암군,46840:무안군,46860:함평군,46870:영광군,46880:장성군,46890:완도군,46900:진도군,46910:신안군',
+    '47':'47111:포항시 남구,47113:포항시 북구,47130:경주시,47150:김천시,47170:안동시,47190:구미시,47210:영주시,47230:영천시,47250:상주시,47280:문경시,47290:경산시,47730:군위군,47750:의성군,47760:청송군,47770:영양군,47780:영덕군,47820:청도군,47830:고령군,47840:성주군,47850:칠곡군,47900:예천군,47920:봉화군,47930:울진군,47940:울릉군',
+    '48':'48121:창원시 의창구,48123:창원시 성산구,48125:창원시 마산합포구,48127:창원시 마산회원구,48129:창원시 진해구,48170:진주시,48220:통영시,48240:사천시,48250:김해시,48270:밀양시,48310:거제시,48330:양산시,48720:의령군,48730:함안군,48740:창녕군,48820:고성군,48840:남해군,48850:하동군,48860:산청군,48870:함양군,48880:거창군,48890:합천군',
+    '50':'50110:제주시,50130:서귀포시'
+  };
+  function __populateSgg() {
+    const sido = document.getElementById('sidoSelect');
+    const sgg = document.getElementById('sggSelect');
+    const btn = document.getElementById('searchBtn');
+    if (!sido || !sgg) return;
+    sido.onchange = function() {
+      selectedSido = this.value; selectedSidoName = this.options[this.selectedIndex].text;
+      sgg.innerHTML = '<option value="">시/군/구 선택</option>';
+      sgg.disabled = !selectedSido;
+      if (btn) btn.disabled = true;
+      if (!selectedSido) return;
+      const raw = __SGG[selectedSido] || '';
+      for (const pair of raw.split(',')) {
+        if (!pair) continue;
+        const [code, ...name] = pair.split(':');
+        const opt = document.createElement('option');
+        opt.value = code; opt.textContent = name.join(':');
+        sgg.appendChild(opt);
+      }
+      // try to enhance with API
+      fetch('/api/codes?regExp=^' + selectedSido).then(r=>r.json()).then(function(items) {
+        if (!Array.isArray(items) || !items.length || !items[0].code) return;
+        for (const item of items) {
+          const code = item.code.substring(0, 5);
+          const name = item.name.split(' ').slice(1).join(' ');
+          if (name && !sgg.querySelector('option[value="' + code + '"]')) {
+            const opt = document.createElement('option');
+            opt.value = code; opt.textContent = name; sgg.appendChild(opt);
+          }
+        }
+      }).catch(function(){});
+    };
+    sgg.onchange = function() {
+      selectedSgg = this.value;
+      selectedDong = '';
+      if (btn) btn.disabled = !selectedSgg;
+      var dongSel = document.getElementById('dongSelect');
+      if (!dongSel) return;
+      if (!selectedSgg) { dongSel.disabled = true; dongSel.innerHTML = '<option value="">시군구 선택</option>'; return; }
+      dongSel.disabled = true; dongSel.innerHTML = '<option value="">로딩 중</option>';
+      setTimeout(function() {
+        var ym = document.getElementById('yearSelect').value + document.getElementById('monthSelect').value;
+        fetch('/api/search?types=apt&lawdCd=' + selectedSgg + '&dealYmd=' + ym).then(function(r){return r.json()}).then(function(data){
+          var dongs = []; var seen = {};
+          for (var i = 0; i < (data.items||[]).length; i++) { var u = data.items[i].umdNm; if (u && !seen[u]) { seen[u] = 1; dongs.push(u); } }
+          dongs.sort();
+          dongSel.innerHTML = '<option value="">전체 동</option>' + dongs.map(function(d){return '<option value="'+d+'">'+d+'</option>'}).join('');
+          dongSel.disabled = false;
+        }).catch(function(){ dongSel.innerHTML = '<option value="">불러오기 실패</option>'; });
+      }, 100);
+    };
+  }
+  // 예산 필터
+  function __initBudget() {
+    var btns = document.querySelectorAll('.budget-btn');
+    var applyBtn = document.getElementById('budgetApplyBtn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].onclick = function() {
+        for (var j = 0; j < btns.length; j++) btns[j].classList.remove('active');
+        this.classList.add('active');
+        budgetMin = parseInt(this.dataset.min);
+        budgetMax = parseInt(this.dataset.max);
+        if (typeof switchTab === 'function') switchTab();
+      };
+    }
+    if (applyBtn) {
+      applyBtn.onclick = function() {
+        var min = parseInt(document.getElementById('budgetMinInput').value) || 0;
+        var max = parseInt(document.getElementById('budgetMaxInput').value) || 0;
+        if (!min && !max) return;
+        for (var j = 0; j < btns.length; j++) btns[j].classList.remove('active');
+        budgetMin = min; budgetMax = max;
+        if (typeof switchTab === 'function') switchTab();
+      };
+    }
+  }
+  document.addEventListener('DOMContentLoaded', __populateSgg);
+  document.addEventListener('DOMContentLoaded', __initBudget);
+  </script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

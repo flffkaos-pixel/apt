@@ -1,0 +1,127 @@
+/* ===== Cobalt Theme (Hallmark) ===== */
+:root {
+  --cobalt-50: oklch(0.97 0.01 250);
+  --cobalt-100: oklch(0.93 0.03 250);
+  --cobalt-200: oklch(0.88 0.06 250);
+  --cobalt-300: oklch(0.80 0.10 250);
+  --cobalt-400: oklch(0.70 0.14 250);
+  --cobalt-500: oklch(0.60 0.18 250);
+  --cobalt-600: oklch(0.50 0.20 250);
+  --cobalt-700: oklch(0.40 0.18 250);
+  --cobalt-800: oklch(0.30 0.15 250);
+  --cobalt-900: oklch(0.20 0.10 250);
+  --cobalt-950: oklch(0.12 0.06 250);
+  --accent: var(--cobalt-500);
+  --accent-hover: var(--cobalt-600);
+  --accent-light: var(--cobalt-100);
+  --surface: oklch(0.97 0.005 250);
+  --surface-card: oklch(1 0 0);
+  --border: oklch(0.90 0.01 250);
+  --text-primary: oklch(0.15 0.02 250);
+  --text-secondary: oklch(0.50 0.02 250);
+  --text-muted: oklch(0.65 0.02 250);
+  --amber: oklch(0.70 0.15 60);
+  --amber-bg: oklch(0.95 0.03 60);
+  --green: oklch(0.55 0.15 150);
+  --red: oklch(0.55 0.18 30);
+  --blue: var(--cobalt-500);
+}
+
+/* ===== Base ===== */
+body { font-family: 'Inter', 'Noto Sans KR', sans-serif; background: var(--surface); color: var(--text-primary); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+
+/* ===== Saved row ===== */
+.row-saved { background: var(--amber-bg) !important; }
+.bookmark-btn { cursor: pointer; font-size: 20px; user-select: none; transition: transform 180ms ease; display: inline-block; }
+.bookmark-btn:hover { transform: scale(1.2); }
+.bookmark-btn.active { color: var(--amber); }
+.empty-msg { color: var(--text-muted); font-size: 14px; padding: 8px 0; }
+.btn-sm { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; transition: all 180ms ease; }
+.btn-sm:hover { background: var(--cobalt-50); }
+.saved-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
+.saved-item:last-child { border-bottom: none; }
+
+/* ===== Spinner ===== */
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 0.65s linear infinite; }
+
+/* ===== Table row pointer ===== */
+tbody tr[cursor="pointer"]:hover td { background: var(--cobalt-50); }
+
+/* ===== Prevent print/screenshot ===== */
+.result-grid { position: relative; }
+.result-grid::after { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.result-grid > * { position: relative; z-index: 1; }
+.card, div[id^="stat"] { user-select: none; -webkit-user-select: none; }
+
+/* ===== Tooltip ===== */
+*[title]:hover::after {
+  content: attr(title);
+  position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+  background: var(--text-primary); color: #fff; font-size: 11px; padding: 3px 8px;
+  border-radius: 4px; white-space: nowrap; z-index: 10;
+}
+
+/* ===== Chart.js responsive ===== */
+canvas { max-width: 100%; }
+
+/* ===== Modal overlay ===== */
+.modal-overlay { display: flex; }
+.modal-overlay.hidden { display: none; }
+
+/* ===== Type Tabs ===== */
+.type-tab {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--surface-card); color: var(--text-secondary);
+  cursor: pointer; transition: all 180ms ease;
+}
+.type-tab:hover { border-color: var(--cobalt-400); color: var(--cobalt-400); }
+.type-tab.active { background: var(--cobalt-700); border-color: var(--cobalt-700); color: #fff; }
+.type-tab.active span { background: rgba(255,255,255,0.2); }
+.type-tab span {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; border-radius: 999px; font-size: 10px; font-weight: 700;
+  background: var(--cobalt-100); padding: 0 5px;
+}
+
+/* ===== Deal Type Tabs ===== */
+.deal-tab {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--surface-card); color: var(--text-secondary);
+  cursor: pointer; transition: all 180ms ease;
+}
+.deal-tab:hover { border-color: var(--cobalt-700); color: var(--cobalt-700); }
+.deal-tab.active { background: var(--cobalt-700); border-color: var(--cobalt-700); color: #fff; }
+.deal-tab span { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; border-radius: 4px; font-size: 10px; font-weight: 700; background: var(--cobalt-100); padding: 0 4px; }
+.deal-tab.active span { background: rgba(255,255,255,0.2); color: #fff; }
+
+.tab-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--tab-color, var(--text-secondary)); flex-shrink: 0; }
+
+/* ===== Feature grid ===== */
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.feature-item { background: rgba(255,255,255,0.1); backdrop-filter: blur(4px); border-radius: 12px; padding: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.15); }
+
+/* ===== Budget Buttons ===== */
+.budget-btn {
+  padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--surface-card); color: var(--text-secondary);
+  cursor: pointer; transition: all 150ms ease;
+}
+.budget-btn:hover { border-color: var(--amber); color: var(--amber); }
+.budget-btn.active { background: var(--amber); border-color: var(--amber); color: #fff; }
+
+/* ===== Value badges ===== */
+.value-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
+.value-badge.best { background: var(--amber); color: #fff; }
+.value-badge.good { background: var(--border); color: var(--text-secondary); }
+.value-badge.poor { background: oklch(0.95 0.03 30); color: var(--red); }
+
+/* ===== Score pill ===== */
+.score-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 24px; height: 18px; border-radius: 999px; font-size: 10px; font-weight: 800;
+  color: #fff; padding: 0 5px; vertical-align: middle;
+}
