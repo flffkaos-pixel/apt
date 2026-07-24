@@ -508,6 +508,18 @@
   }
   document.addEventListener('DOMContentLoaded', __populateSgg);
   document.addEventListener('DOMContentLoaded', __initBudget);
+
+  // 랜딩에서 넘어온 해시 자동 처리: #subscribe, #onetime
+  function __handleLandingHash() {
+    var h = (location.hash || '').toLowerCase();
+    if (h === '#subscribe' || h === '#onetime') {
+      setTimeout(function() {
+        if (typeof showSubscribeModal === 'function') showSubscribeModal();
+      }, 400);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', __handleLandingHash);
+  window.addEventListener('hashchange', __handleLandingHash);
   </script>
   <script src="/js/main.js"></script>
 </body>
