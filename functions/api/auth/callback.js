@@ -38,9 +38,10 @@ export async function onRequest(context) {
     const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(JSON.stringify(payload)));
     const sigHex = Array.from(new Uint8Array(sig)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
     const sessionToken = base64Encode(JSON.stringify(payload)) + '.' + sigHex;
-    const response = Response.redirect(origin + '/app?auth=success', 302);
-    response.headers.append('Set-Cookie', 'session=' + sessionToken + '; HttpOnly; Secure; Path=/; Max-Age=604800; SameSite=Lax');
-    return response;
+    const headers = new Headers();
+    headers.set('Location', origin + '/app?auth=success');
+    headers.set('Set-Cookie', 'session=' + sessionToken + '; HttpOnly; Secure; Path=/; Max-Age=604800; SameSite=Lax');
+    return new Response(null, { status: 302, headers });
   } catch (e) {
     return new Response('callback.js error: ' + e.message, { status: 500 });
   }
