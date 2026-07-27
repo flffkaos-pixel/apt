@@ -11,7 +11,7 @@ export async function onRequest(context) {
     if (parts.length !== 2) {
       return json({ user: null });
     }
-    const payload = JSON.parse(atob(parts[0]));
+    const payload = JSON.parse(base64Decode(parts[0]));
     const sigHex = parts[1];
     const secret = (env.JWT_SECRET || 'fallback-secret-key-12345').padEnd(32, 'X').slice(0, 32);
     const encoder = new TextEncoder();
@@ -32,4 +32,10 @@ function hexToBytes(hex) {
   var bytes = new Uint8Array(hex.length / 2);
   for (var i = 0; i < hex.length; i += 2) { bytes[i / 2] = parseInt(hex.substr(i, 2), 16); }
   return bytes;
+}
+function base64Decode(str) {
+  var binary = atob(str);
+  var bytes = new Uint8Array(binary.length);
+  for (var i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
+  return new TextDecoder().decode(bytes);
 }

@@ -37,11 +37,17 @@ export async function onRequest(context) {
     const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
     const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(JSON.stringify(payload)));
     const sigHex = Array.from(new Uint8Array(sig)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-    const sessionToken = btoa(JSON.stringify(payload)) + '.' + sigHex;
+    const sessionToken = base64Encode(JSON.stringify(payload)) + '.' + sigHex;
     const response = Response.redirect(origin + '/app?auth=success', 302);
     response.headers.append('Set-Cookie', 'session=' + sessionToken + '; HttpOnly; Secure; Path=/; Max-Age=604800; SameSite=Lax');
     return response;
   } catch (e) {
     return new Response('callback.js error: ' + e.message, { status: 500 });
   }
+}
+function base64Encode(str) {
+  var bytes = new TextEncoder().encode(str);
+  var binary = '';
+  for (var i = 0; i < bytes.length; i++) { binary += String.fromCharCode(bytes[i]); }
+  return btoa(binary);
 }
