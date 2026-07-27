@@ -20,7 +20,7 @@ export async function onRequest(context) {
     if (!valid || payload.exp < Math.floor(Date.now() / 1000)) {
       return json({ user: null });
     }
-    return json({ user: { id: payload.sub, name: payload.name, email: payload.email, picture: payload.picture } });
+    return json({ user: { id: payload.sub, name: payload.name, email: payload.email, picture: payload.picture, subscription: payload.subscription || null } });
   } catch (e) {
     return json({ user: null });
   }

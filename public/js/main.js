@@ -1,5 +1,47 @@
 var currentResults = null;
 var priceChart = null;
+var DAILY_FREE_LIMIT = 10;
+
+function getUser() {
+  return (window._cachedUser || {});
+}
+
+function isPremium() {
+  var u = getUser();
+  return u && u.subscription === 'premium';
+}
+
+function getSearchCount() {
+  var today = new Date().toISOString().slice(0, 10);
+  var data = JSON.parse(localStorage.getItem('searchCount') || '{}');
+  if (data.date !== today) { data = { date: today, count: 0 }; }
+  return data.count;
+}
+
+function incrementSearchCount() {
+  var today = new Date().toISOString().slice(0, 10);
+  var data = { date: today, count: getSearchCount() + 1 };
+  localStorage.setItem('searchCount', JSON.stringify(data));
+}
+
+function canSearch() {
+  if (isPremium()) return true;
+  return getSearchCount() < DAILY_FREE_LIMIT;
+}
+
+function showLimitReached() {
+  alert('무료 이용자는 하루 ' + DAILY_FREE_LIMIT + '회까지 조회 가능합니다.\n프리미엄 구독 시 무제한 이용 가능합니다.');
+  showSubscribeModal();
+}
+
+function updatePremiumUI() {
+  var premiumOnly = document.querySelectorAll('.premium-only');
+  premiumOnly.forEach(function (el) { el.style.display = isPremium() ? '' : 'none'; });
+  var freeOnly = document.querySelectorAll('.free-only');
+  freeOnly.forEach(function (el) { el.style.display = isPremium() ? 'none' : ''; });
+  var limitMsg = document.getElementById('searchLimitMsg');
+  if (limitMsg) limitMsg.textContent = isPremium() ? '' : '무료: 일 ' + DAILY_FREE_LIMIT + '회 / 오늘 ' + getSearchCount() + '회 사용';
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   checkAuth();
@@ -19,12 +61,15 @@ async function checkAuth() {
     var res = await fetch('/api/auth/me');
     var data = await res.json();
     if (data.user) {
+      window._cachedUser = data.user;
       loginBtn.style.display = 'none';
       userInfo.classList.remove('hidden');
       if (userPic) userPic.src = data.user.picture || '';
       if (userName) userName.textContent = data.user.name || data.user.email;
-      if (data.user.subscription && subBadge) subBadge.classList.remove('hidden');
+      if (data.user.subscription === 'premium' && subBadge) subBadge.classList.remove('hidden');
+      updatePremiumUI();
     } else {
+      window._cachedUser = null;
       loginBtn.style.display = 'inline-flex';
       userInfo.classList.add('hidden');
     }
@@ -32,6 +77,7 @@ async function checkAuth() {
     loginBtn.style.display = 'inline-flex';
     userInfo.classList.add('hidden');
   }
+  updatePremiumUI();
 }
 
 /* ===== Search ===== */
@@ -63,6 +109,7 @@ function hideLoading() {
 
 async function searchByRegion() {
   if (!window.selectedSgg) return;
+  if (!canSearch()) { showSubscribeModal(); return; }
   var types = getSelectedTypes();
   if (!types.length) { alert('조회할 유형을 선택하세요.'); return; }
   var ym = document.getElementById('yearSelect').value + document.getElementById('monthSelect').value;
@@ -80,7 +127,9 @@ async function searchByRegion() {
     var data = await res.json();
     currentResults = data;
     hideLoading();
+    if (!isPremium()) incrementSearchCount();
     renderResults(data);
+    updatePremiumUI();
   } catch (e) {
     hideLoading();
     alert('데이터를 불러오는데 실패했습니다.');
@@ -91,6 +140,7 @@ var searchByKeyword = async function () {
   var input = document.getElementById('keywordInput');
   var keyword = input ? input.value.trim() : '';
   if (!keyword) return;
+  if (!canSearch()) { showSubscribeModal(); return; }
   var types = getSelectedTypes();
   if (!types.length) { alert('조회할 유형을 선택하세요.'); return; }
   var params = new URLSearchParams();
@@ -104,7 +154,9 @@ var searchByKeyword = async function () {
     var data = await res.json();
     currentResults = data;
     hideLoading();
+    if (!isPremium()) incrementSearchCount();
     renderResults(data);
+    updatePremiumUI();
   } catch (e) {
     hideLoading();
     alert('검색에 실패했습니다.');
@@ -322,6 +374,7 @@ function switchTab() {
 /* ===== CSV Download ===== */
 function downloadCSV() {
   if (!currentResults || !currentResults.items || !currentResults.items.length) return;
+  if (!isPremium()) { showSubscribeModal(); return; }
   var rows = [['아파트명', '거래금액', '면적(㎡)', '층', '거래일', '유형']];
   currentResults.items.forEach(function (item) {
     rows.push([item.aptNm || '', item.amount || '', item.area || '', item.floor || '', item.dealDate || '', item.type || '']);
