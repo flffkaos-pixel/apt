@@ -1,4 +1,4 @@
-/* ===== Cobalt Theme (Hallmark) ===== */
+/* ===== Cobalt Theme (Hallmark) — shared across pages ===== */
 :root {
   --cobalt-50: oklch(0.97 0.01 250);
   --cobalt-100: oklch(0.93 0.03 250);
@@ -124,4 +124,42 @@ canvas { max-width: 100%; }
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 24px; height: 18px; border-radius: 999px; font-size: 10px; font-weight: 800;
   color: #fff; padding: 0 5px; vertical-align: middle;
+}
+
+/* ===== Premium Nav (N1b) — shared ===== */
+.nav { position: fixed; inset: 0 0 auto; z-index: 300; background: rgba(255,255,255,0.72); backdrop-filter: blur(18px) saturate(160%); border-bottom: 1px solid var(--border); transition: background 220ms ease, border-color 220ms ease; }
+.nav__inner { max-width: 1280px; margin: 0 auto; padding-inline: clamp(1rem, 4vw, 2.5rem); height: 64px; display: flex; align-items: center; justify-content: space-between; }
+.nav__brand { display: flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700; font-size: 1.1rem; color: var(--cobalt-700); white-space: nowrap; }
+.nav__brand svg { width: 24px; height: 24px; flex-shrink: 0; }
+.nav__center { display: flex; gap: 2px; align-items: center; }
+.nav__link { padding: 6px 14px; text-decoration: none; color: var(--text-secondary); font-size: 0.9rem; font-weight: 500; border-radius: 6px; transition: all 180ms ease; white-space: nowrap; }
+.nav__link:hover { color: var(--text-primary); background: var(--cobalt-50); }
+.nav__link.active { color: var(--cobalt-700); font-weight: 600; }
+.nav__right { display: flex; align-items: center; gap: 10px; }
+.nav__right .btn--accent { display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px; border-radius: 8px; background: var(--cobalt-700); color: #fff; font-size: 0.875rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: background 180ms ease, transform 100ms ease; white-space: nowrap; }
+.nav__right .btn--accent:hover { background: var(--cobalt-800); }
+.nav__right .btn--accent:active { transform: translateY(1px); }
+
+/* ===== Premium Footer (Ft5) — shared ===== */
+.footer-premium { padding: 48px clamp(1rem, 4vw, 2.5rem); border-top: 1px solid var(--border); }
+.footer-premium__inner { max-width: 1280px; margin: 0 auto; }
+.footer-premium__tagline { font-weight: 700; font-size: clamp(1.25rem, 3vw, 2rem); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 24px; max-width: 28ch; color: var(--text-primary); }
+.footer-premium__meta { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
+.footer-premium__brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem; color: var(--cobalt-700); }
+.footer-premium__brand svg { width: 20px; height: 20px; flex-shrink: 0; }
+.footer-premium__links { display: flex; gap: 20px; }
+.footer-premium__links a { text-decoration: none; color: var(--text-muted); font-size: 0.85rem; transition: color 180ms ease; white-space: nowrap; }
+.footer-premium__links a:hover { color: var(--text-primary); }
+.footer-premium small { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ===== Premium Section styling for app page ===== */
+.premium-card { background: rgba(255,255,255,0.75); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 16px; }
+.premium-section { margin-bottom: 24px; }
+.premium-section:last-child { margin-bottom: 0; }
+
+/* responsive */
+@media (max-width: 48rem) {
+  .nav__center { display: none; }
+  .footer-premium__meta { flex-direction: column; gap: 16px; text-align: center; }
+  .footer-premium__tagline { max-width: 100%; text-align: center; }
 }

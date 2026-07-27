@@ -2,31 +2,39 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="AptScouter — 국토교통부 실거래가 기반 아파트 시세 분석 서비스.">
   <title>AptScouter — 아파트 실거래가 분석</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css" />
   <style>
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    body { font-family: 'Inter', 'Noto Sans KR', sans-serif; }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; }
+    body { font-family: 'Inter', 'Noto Sans KR', sans-serif; padding-top: 64px; }
+    .nav__link.active { border-bottom: 2px solid var(--cobalt-700); }
+    .search-card { background: rgba(255,255,255,0.75); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .pay-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 24px; border-radius: 8px; background: var(--cobalt-700); color: #fff; font-size: 0.9rem; font-weight: 600; border: none; cursor: pointer; transition: background 180ms ease, transform 100ms ease; }
+    .pay-btn:hover { background: var(--cobalt-800); }
   </style>
 </head>
 <body class="bg-[var(--surface)] text-[var(--text-primary)] min-h-screen">
-  <!-- Top Navigation -->
-  <header class="bg-white border-b border-[var(--border)] sticky top-0 z-50">
-    <div class="flex items-center justify-between max-w-[1280px] mx-auto px-6 h-[72px]">
-      <div class="flex items-center gap-8">
-        <a href="/" class="text-2xl font-extrabold tracking-tight" style="color:var(--cobalt-700)">AptScouter</a>
-        <nav class="hidden md:flex gap-6 text-sm font-medium text-[var(--text-secondary)]">
-          <a href="#" class="text-[var(--cobalt-700)] border-b-2 border-[var(--cobalt-700)] pb-1">실거래가</a>
-          <a href="#" class="hover:text-[var(--cobalt-700)] transition-colors">인사이트</a>
-          <a href="#" class="hover:text-[var(--cobalt-700)] transition-colors">저장</a>
-        </nav>
-      </div>
-      <div class="flex items-center gap-4">
+
+  <!-- Premium Nav -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="/" class="nav__brand">
+        <svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="5" fill="var(--cobalt-700)"/><path d="M6 15V9h3v6H6zm4-4v4h3v-4h-3zm4 2v2h3v-2h-3z" fill="#fff"/></svg>
+        AptScouter
+      </a>
+      <nav class="nav__center">
+        <a href="#" class="nav__link active">실거래가</a>
+        <a href="#" class="nav__link">인사이트</a>
+        <a href="#" class="nav__link">저장</a>
+      </nav>
+      <div class="nav__right">
         <div id="authArea" class="flex items-center gap-3">
           <button id="loginBtn" onclick="location.href='/api/auth/google'" class="hidden md:flex items-center gap-2 px-4 py-2 bg-[var(--cobalt-700)] text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-all">Google 로그인</button>
           <div id="userInfo" class="hidden flex items-center gap-3">
@@ -46,10 +54,11 @@
   <!-- Alert -->
   <div id="subAlert" class="hidden max-w-[1280px] mx-auto mt-4 px-6"></div>
 
-  <main class="max-w-[1280px] mx-auto px-4 md:px-6 py-6">
+  <main class="max-w-[1280px] mx-auto px-4 md:px-6 py-8">
+
     <!-- Search -->
-    <section class="mb-6">
-      <div class="bg-white/80 backdrop-blur-md border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+    <section class="premium-section">
+      <div class="search-card p-6">
         <div class="flex items-center gap-3 mb-5">
           <span class="material-symbols-outlined text-[var(--cobalt-700)] text-2xl">search</span>
           <h2 class="text-xl font-bold text-[var(--cobalt-700)]">아파트 실거래가 조회</h2>
@@ -118,39 +127,6 @@
       </div>
     </section>
 
-    <!-- 차별점 소개 -->
-    <section class="mb-6">
-      <div class="bg-gradient-to-r from-[var(--cobalt-700)] via-[var(--cobalt-800)] to-[var(--cobalt-600)] rounded-2xl p-6 text-white shadow-md">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
-          <div>
-            <div class="text-2xl font-extrabold mb-1">8</div>
-            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">부동산 유형 통합</div>
-            <div class="text-[11px] opacity-60">아파트/단독/연립/오피스텔 × 매매/전월세</div>
-          </div>
-          <div>
-            <div class="text-2xl font-extrabold mb-1">🏛️</div>
-            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">국토부 실거래가</div>
-            <div class="text-[11px] opacity-60">허위매물 없음 · 실제 거래 데이터</div>
-          </div>
-          <div>
-            <div class="text-2xl font-extrabold mb-1">💰</div>
-            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">예산 기반 추천</div>
-            <div class="text-[11px] opacity-60">내 예산으로 살 수 있는 매물</div>
-          </div>
-          <div>
-            <div class="text-2xl font-extrabold mb-1">🗺️</div>
-            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">컬러 지도</div>
-            <div class="text-[11px] opacity-60">유형별 마커 + 전매물 표시</div>
-          </div>
-          <div>
-            <div class="text-2xl font-extrabold mb-1">📊</div>
-            <div class="text-[11px] font-semibold uppercase tracking-wider opacity-80">전세가율 + 가치</div>
-            <div class="text-[11px] opacity-60">매매/전세 비교 · 가성비 평가</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Loading -->
     <div id="loading" class="hidden flex flex-col items-center justify-center py-20">
       <div class="w-8 h-8 border-3 border-[var(--border)] border-t-[var(--cobalt-600)] rounded-full animate-spin mb-3"></div>
@@ -158,7 +134,7 @@
     </div>
 
     <!-- Premium Banner (shown when not subscribed) -->
-    <div id="premiumBanner" class="mb-6">
+    <div id="premiumBanner" class="premium-section">
       <div class="bg-gradient-to-r from-[var(--cobalt-800)] to-[var(--cobalt-700)] text-white rounded-2xl p-6 shadow-lg flex flex-col md:flex-row items-start md:items-center gap-4">
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-2">
@@ -331,7 +307,7 @@
         <div id="reportContent" class="p-5"></div>
       </section>
 
-      <!-- 가성비 Top 3 (예산 필터 활성화 시) -->
+      <!-- 가성비 Top 3 -->
       <section id="topValueSection" class="hidden bg-white rounded-2xl border border-[var(--border)] shadow-sm mb-5">
         <div class="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
           <span class="material-symbols-outlined text-[var(--amber)]">emoji_events</span>
@@ -371,14 +347,21 @@
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-white border-t border-[var(--border)] mt-8">
-    <div class="max-w-[1280px] mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div class="text-center md:text-left">
-        <div class="text-xl font-extrabold tracking-tight" style="color:var(--cobalt-700)">AptScouter</div>
-        <p class="text-xs text-[var(--text-muted)] mt-1">국토교통부 실거래가 · 기상청 · 카카오맵</p>
+  <!-- Premium Footer -->
+  <footer class="footer-premium">
+    <div class="footer-premium__inner">
+      <p class="footer-premium__tagline">실거래 데이터로<br>똑똑한 부동산 결정.</p>
+      <div class="footer-premium__meta">
+        <div class="footer-premium__brand">
+          <svg viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="var(--cobalt-700)"/><path d="M4 11V7h3v4H4zm3-3v3h3V8H7zm3 1v2h3V9h-3z" fill="#fff"/></svg>
+          AptScouter
+        </div>
+        <div class="footer-premium__links">
+          <a href="/">서비스</a>
+          <a href="mailto:admin@aptscouter.pages.dev">광고 문의</a>
+        </div>
+        <small>국토교통부 · 기상청 · 카카오맵</small>
       </div>
-      <div class="text-xs text-[var(--text-muted)]">📢 광고 문의: <a href="mailto:admin@aptscouter.pages.dev" class="text-[var(--cobalt-600)] hover:underline">admin@aptscouter.pages.dev</a></div>
     </div>
   </footer>
 
@@ -449,7 +432,6 @@
         opt.value = code; opt.textContent = name.join(':');
         sgg.appendChild(opt);
       }
-      // try to enhance with API
       fetch('/api/codes?regExp=^' + selectedSido).then(r=>r.json()).then(function(items) {
         if (!Array.isArray(items) || !items.length || !items[0].code) return;
         for (const item of items) {
@@ -482,7 +464,6 @@
       }, 100);
     };
   }
-  // 예산 필터
   function __initBudget() {
     var btns = document.querySelectorAll('.budget-btn');
     var applyBtn = document.getElementById('budgetApplyBtn');
@@ -509,7 +490,6 @@
   document.addEventListener('DOMContentLoaded', __populateSgg);
   document.addEventListener('DOMContentLoaded', __initBudget);
 
-  // 랜딩에서 넘어온 해시 자동 처리: #subscribe, #onetime
   function __handleLandingHash() {
     var h = (location.hash || '').toLowerCase();
     if (h === '#subscribe' || h === '#onetime') {
