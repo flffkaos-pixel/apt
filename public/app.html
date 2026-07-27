@@ -405,7 +405,7 @@
       dongSel.disabled = true; dongSel.innerHTML = '<option value="">로딩 중</option>';
       setTimeout(function() {
         var ym = document.getElementById('yearSelect').value + document.getElementById('monthSelect').value;
-        fetch('/api/search?types=apt&lawdCd=' + selectedSgg + '&dealYmd=' + ym).then(function(r){return r.json()}).then(function(data){
+        fetch('/api/search?types=apt&lawdCd=' + selectedSgg + '&dealYmd=' + ym + '&skipGeocode=1').then(function(r){return r.json()}).then(function(data){
           var dongs = []; var seen = {};
           for (var i = 0; i < (data.items||[]).length; i++) { var u = data.items[i].umdNm; if (u && !seen[u]) { seen[u] = 1; dongs.push(u); } }
           dongs.sort();
