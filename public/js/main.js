@@ -1,6 +1,6 @@
 var currentResults = null;
 var priceChart = null;
-var DAILY_FREE_LIMIT = 10;
+var DAILY_FREE_LIMIT = 1;
 
 function getUser() {
   return (window._cachedUser || {});
