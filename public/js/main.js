@@ -459,11 +459,20 @@ function closeSubscribeModal() {
 
 /* ===== Payment ===== */
 function startPayment() {
-  fetch('/api/payment/create', { method: 'POST' })
+  if (!window._cachedUser?.email) { alert('로그인이 필요합니다.'); return; }
+  fetch('/api/payment/upgrade', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: window._cachedUser.email })
+  })
     .then(function (r) { return r.json(); })
     .then(function (data) {
-      if (data.url) window.location.href = data.url;
-      else alert('결제 페이지를 불러오는데 실패했습니다.');
+      if (data.ok) {
+        alert('프리미엄 업그레이드 완료! 페이지를 새로고침하세요.');
+        window.location.reload();
+      } else {
+        alert('업그레이드 실패: ' + (data.error || '알 수 없는 오류'));
+      }
     })
     .catch(function () {
       alert('결제 처리 중 오류가 발생했습니다.');

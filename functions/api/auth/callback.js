@@ -32,8 +32,7 @@ export async function onRequest(context) {
     }
     const user = await userResp.json();
     const secret = (env.JWT_SECRET || 'fallback-secret-key-12345').padEnd(32, 'X').slice(0, 32);
-    const isPremium = (env.PREMIUM_EMAILS || '').split(',').map(function(e){return e.trim().toLowerCase()}).indexOf(user.email.toLowerCase()) >= 0;
-    const payload = { sub: user.id, email: user.email, name: user.name, picture: user.picture, subscription: isPremium ? 'premium' : null, exp: Math.floor(Date.now() / 1000) + 604800 };
+    const payload = { sub: user.id, email: user.email, name: user.name, picture: user.picture, subscription: null, exp: Math.floor(Date.now() / 1000) + 604800 };
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
     const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(JSON.stringify(payload)));

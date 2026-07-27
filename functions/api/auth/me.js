@@ -20,7 +20,15 @@ export async function onRequest(context) {
     if (!valid || payload.exp < Math.floor(Date.now() / 1000)) {
       return json({ user: null });
     }
-    return json({ user: { id: payload.sub, name: payload.name, email: payload.email, picture: payload.picture, subscription: payload.subscription || null } });
+    let subscription = payload.subscription || null;
+    const email = (payload.email || '').toLowerCase();
+    if (email && env.PREMIUM_KV) {
+      const kvData = await env.PREMIUM_KV.get('premium:' + email);
+      if (kvData) {
+        subscription = 'premium';
+      }
+    }
+    return json({ user: { id: payload.sub, name: payload.name, email: payload.email, picture: payload.picture, subscription } });
   } catch (e) {
     return json({ user: null });
   }
