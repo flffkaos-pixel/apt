@@ -286,7 +286,7 @@
     <p class="landing-footer__line">실거래 데이터로<br>똑똑한 부동산 결정.</p>
     <div class="landing-footer__meta">
       <div class="landing-footer__brand">
-        <svg viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="var(--color-accent, var(--cobalt-500))"/><path d="M4 11V7h3v4H4zm3-3v3h3V8H7zm3 1v2h3V9h-3z" fill="#fff"/></svg>
+        <svg viewBox="0 0 18 18" fill="none"><rect width="18" height="18" rx="4" fill="var(--color-accent)"/><path d="M4 11V7h3v4H4zm3-3v3h3V8H7zm3 1v2h3V9h-3z" fill="#fff"/></svg>
         AptScouter
       </div>
       <div class="landing-footer__links">
@@ -297,6 +297,27 @@
     </div>
   </div>
 </footer>
+
+<script>
+(async function () {
+  try {
+    var res = await fetch('/api/auth/me');
+    var data = await res.json();
+    if (data.user) {
+      var name = data.user.name || data.user.email;
+      var pic = data.user.picture || '';
+      var signin = document.querySelector('.nav__signin');
+      var btnAccent = document.querySelector('.nav__right .btn--accent');
+      var heroBtn = document.querySelector('.hero__actions .btn--accent');
+      if (signin) {
+        signin.outerHTML = '<div class="nav__user app-flex-center app-gap-sm"><img src="' + pic + '" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover"><span class="app-text-sm app-text-primary">' + name + '</span><a href="/api/auth/logout" class="btn--outline btn--sm" style="border:none;padding:0;min-height:auto;font-size:0.75rem">로그아웃</a></div>';
+      }
+      if (btnAccent) btnAccent.outerHTML = '<a href="app.html" class="btn--accent">서비스 이용</a>';
+      if (heroBtn) heroBtn.outerHTML = '<a href="app.html" class="btn--accent">서비스 이용</a>';
+    }
+  } catch (e) {}
+})();
+</script>
 
 </body>
 </html>
