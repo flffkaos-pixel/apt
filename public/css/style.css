@@ -152,12 +152,112 @@ canvas { max-width: 100%; }
 .footer-premium__links a:hover { color: var(--text-primary); }
 .footer-premium small { font-size: 0.8rem; color: var(--text-muted); }
 
-/* ===== Premium Section styling for app page ===== */
-.premium-card { background: rgba(255,255,255,0.75); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 16px; }
-.premium-section { margin-bottom: 24px; }
-.premium-section:last-child { margin-bottom: 0; }
+/* ===== App page UI — matches landing page design tokens ===== */
 
-/* responsive */
+/* Card — matches .feature__card from landing page */
+.app-card { background: #fff; border-radius: var(--radius-lg, 12px); border: 1px solid var(--border); padding: var(--space-lg, 1.5rem); transition: box-shadow 220ms ease, transform 220ms ease; }
+.app-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.04); transform: translateY(-1px); }
+
+/* Card without hover */
+.app-card-static { background: #fff; border-radius: var(--radius-lg, 12px); border: 1px solid var(--border); padding: var(--space-lg, 1.5rem); }
+
+/* Compact card for stats */
+.app-stat-card { background: #fff; border-radius: var(--radius-md, 8px); border: 1px solid var(--border); padding: var(--space-md, 1rem); text-align: center; }
+
+/* Section header — matches landing page .section__label + .section__title */
+.app-section-label { font-family: var(--font-display, 'Space Grotesk', sans-serif); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-accent, var(--cobalt-500)); margin-bottom: var(--space-sm, 0.75rem); }
+.app-section-title { font-family: var(--font-display, 'Space Grotesk', sans-serif); font-weight: 700; font-size: clamp(1.25rem, 2vw, 1.5rem); line-height: 1.1; letter-spacing: -0.02em; color: var(--color-ink, var(--text-primary)); }
+
+/* Buttons — matches landing page .btn--accent and .btn--outline */
+.app-btn { display: inline-flex; align-items: center; gap: 6px; padding: var(--space-xs, 0.5rem) var(--space-lg, 1.5rem); border-radius: var(--radius-md, 8px); background: var(--color-accent, var(--cobalt-500)); color: var(--color-accent-ink, #fff); font-size: 0.875rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: background 220ms ease, transform 100ms ease; white-space: nowrap; min-height: 40px; }
+.app-btn:hover { background: var(--color-accent-hover, var(--cobalt-600)); }
+.app-btn:active { transform: translateY(1px); }
+.app-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.app-btn--outline { display: inline-flex; align-items: center; gap: 6px; padding: var(--space-xs, 0.5rem) var(--space-lg, 1.5rem); border-radius: var(--radius-md, 8px); background: transparent; color: var(--color-ink, var(--text-primary)); font-size: 0.875rem; font-weight: 500; text-decoration: none; border: 1px solid var(--border); cursor: pointer; transition: border-color 220ms ease; white-space: nowrap; min-height: 40px; }
+.app-btn--outline:hover { border-color: var(--text-secondary); }
+
+/* Form fields — matches .hero__field from landing page */
+.app-field { padding: var(--space-sm, 0.75rem); border: 1px solid var(--border); border-radius: var(--radius-sm, 6px); background: var(--color-paper, #fff); font-size: 0.875rem; color: var(--color-ink, var(--text-primary)); transition: border-color 220ms ease; width: 100%; }
+.app-field:focus { outline: none; border-color: var(--color-accent, var(--cobalt-500)); }
+.app-field:disabled { opacity: 0.5; cursor: not-allowed; }
+select.app-field { appearance: none; cursor: pointer; }
+.app-field-label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 4px; }
+
+/* Checkbox labels */
+.app-checkbox { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 0.875rem; color: var(--text-secondary); }
+.app-checkbox input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--color-accent, var(--cobalt-500)); }
+
+/* Input with icon */
+.app-input-wrap { position: relative; }
+.app-input-icon { position: absolute; left: var(--space-sm, 0.75rem); top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem; pointer-events: none; }
+.app-input-wrap .app-field { padding-left: calc(var(--space-sm, 0.75rem) + 1.5rem); }
+
+/* Table */
+.app-table { width: 100%; border-collapse: collapse; }
+.app-table th { background: var(--cobalt-50); font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 16px; text-align: left; }
+.app-table td { padding: 12px 16px; font-size: 0.875rem; border-top: 1px solid var(--border); }
+.app-table tbody tr:hover td { background: var(--cobalt-50); }
+.app-table tbody tr{cursor:pointer}:hover td { background: var(--cobalt-50); }
+
+/* Tabs (for deal-type-tabs JS renders) */
+.app-tab { display: inline-flex; align-items: center; gap: 4px; padding: 5px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid var(--border); background: #fff; color: var(--text-secondary); cursor: pointer; transition: all 180ms ease; }
+.app-tab:hover { border-color: var(--cobalt-700); color: var(--cobalt-700); }
+.app-tab.active { background: var(--cobalt-700); border-color: var(--cobalt-700); color: #fff; }
+
+/* Modal */
+.app-modal-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.app-modal { background: #fff; border-radius: var(--radius-lg, 12px); max-width: 420px; width: 100%; padding: var(--space-2xl, 2.5rem); position: relative; max-height: 85vh; overflow-y: auto; }
+.app-modal-close { position: absolute; top: 1rem; right: 1rem; color: var(--text-muted); background: none; border: none; font-size: 1.5rem; cursor: pointer; line-height: 1; }
+.app-modal-close:hover { color: var(--text-primary); }
+
+/* Stat value */
+.app-stat-value { font-family: var(--font-display, 'Space Grotesk', sans-serif); font-weight: 700; font-size: clamp(1.25rem, 2vw, 1.5rem); color: var(--cobalt-700); letter-spacing: -0.02em; }
+.app-stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+
+/* Badge */
+.app-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+.app-badge--amber { background: var(--amber); color: #fff; }
+.app-badge--cobalt { background: var(--cobalt-600); color: #fff; }
+
+/* Premium banner */
+.app-premium-banner { background: linear-gradient(135deg, var(--cobalt-800), var(--cobalt-700)); color: #fff; border-radius: var(--radius-lg, 12px); padding: var(--space-lg, 1.5rem); display: flex; flex-direction: column; gap: var(--space-md, 1rem); }
+@media (min-width: 48rem) { .app-premium-banner { flex-direction: row; align-items: center; } }
+.app-premium-banner .app-btn { background: #fff; color: var(--cobalt-700); flex-shrink: 0; }
+.app-premium-banner .app-btn:hover { background: var(--cobalt-50); }
+
+/* Layout utilities (Tailwind replacement) */
+.app-grid { display: grid; }
+.app-flex { display: flex; }
+.app-flex-center { display: flex; align-items: center; }
+.app-flex-between { display: flex; align-items: center; justify-content: space-between; }
+.app-gap-xs { gap: 4px; }
+.app-gap-sm { gap: 8px; }
+.app-gap-md { gap: 12px; }
+.app-gap-lg { gap: 16px; }
+.app-gap-xl { gap: 24px; }
+.app-mb-sm { margin-bottom: 8px; }
+.app-mb-md { margin-bottom: 12px; }
+.app-mb-lg { margin-bottom: 16px; }
+.app-mb-xl { margin-bottom: 24px; }
+.app-mt-sm { margin-top: 8px; }
+.app-mt-md { margin-top: 12px; }
+.app-mt-lg { margin-top: 16px; }
+.app-p-sm { padding: 8px; }
+.app-p-md { padding: 12px; }
+.app-p-lg { padding: 16px; }
+.app-p-xl { padding: 24px; }
+.app-text-xs { font-size: 0.75rem; }
+.app-text-sm { font-size: 0.875rem; }
+.app-text-muted { color: var(--text-muted); }
+.app-text-primary { color: var(--text-primary); }
+.app-text-cobalt { color: var(--cobalt-700); }
+.app-text-amber { color: var(--amber); }
+.app-hidden { display: none; }
+.app-w-full { width: 100%; }
+.app-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app-relative { position: relative; }
+
+/* responsive: hide center nav on mobile */
 @media (max-width: 48rem) {
   .nav__center { display: none; }
   .footer-premium__meta { flex-direction: column; gap: 16px; text-align: center; }
