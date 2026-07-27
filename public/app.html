@@ -12,32 +12,9 @@
   <link rel="stylesheet" href="/css/style.css" />
   <style>
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    body { font-family: 'Inter', 'Noto Sans KR', sans-serif; background: var(--surface); color: var(--text-primary); padding-top: 64px; }
-    .nav__link.active { border-bottom: 2px solid var(--cobalt-700); }
-    .hidden { display: none !important; }
-    .app-alert { max-width: 1280px; margin: 0 auto; padding: 12px 24px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; }
-    .app-alert.alert-success { background: var(--cobalt-50); color: var(--cobalt-700); border: 1px solid var(--cobalt-200); }
-    .app-alert.alert-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-    .app-container { max-width: 1280px; margin: 0 auto; padding: 24px clamp(1rem, 4vw, 2.5rem); }
-    .app-search-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
-    @media (min-width: 40rem) { .app-search-grid { grid-template-columns: repeat(5, 1fr); gap: 12px; } }
-    .app-year-month { display: flex; gap: 4px; }
-    @media (min-width: 40rem) { .app-year-month { gap: 8px; } }
-    .app-checkbox-grid { display: flex; flex-wrap: wrap; gap: 16px 12px; margin-top: 12px; font-size: 0.875rem; }
-    .app-results-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
-    @media (min-width: 64rem) { .app-results-grid { grid-template-columns: 1fr 2fr; } }
-    .app-table-wrap { overflow-x: auto; max-height: 440px; }
-    .app-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .app-sidebar { display: flex; flex-direction: column; gap: 20px; }
-    @media (min-width: 64rem) { .app-sidebar { grid-column: 3; } }
-    .app-three-col { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
-    @media (min-width: 64rem) { .app-three-col { grid-template-columns: 1fr 2fr; } }
-    .app-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
-    @media (min-width: 48rem) { .app-stats-grid { grid-template-columns: repeat(8, 1fr); } }
-    .app-tabs-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
   </style>
 </head>
-<body>
+<body class="app-page">
 
   <!-- Premium Nav -->
   <header class="nav">
@@ -53,15 +30,15 @@
       </nav>
       <div class="nav__right">
         <div id="authArea" class="app-flex app-gap-lg">
-          <button id="loginBtn" onclick="location.href='/api/auth/google'" class="app-btn" style="display:none">Google 로그인</button>
+          <button id="loginBtn" onclick="location.href='/api/auth/google'" class="btn--accent" style="display:none">Google 로그인</button>
           <div id="userInfo" class="hidden app-flex-center app-gap-lg">
             <img id="userPic" src="" alt="" class="app-stat-card" style="width:32px;height:32px;border-radius:50%;padding:0;border:2px solid var(--border);object-fit:cover">
             <span id="userName" class="app-text-sm app-text-primary"></span>
             <span id="subBadge" class="hidden app-badge app-badge--amber">PRO</span>
-            <button onclick="location.href='/api/auth/logout'" class="app-btn--outline" style="border:none;padding:0;min-height:auto;font-size:0.8rem">로그아웃</button>
+            <button onclick="location.href='/api/auth/logout'" class="btn--outline btn--sm" style="border:none;padding:0;min-height:auto;font-size:0.8rem">로그아웃</button>
           </div>
         </div>
-        <button onclick="showSubscribeModal()" class="app-btn--outline" style="color:var(--cobalt-700);border-color:var(--cobalt-700);font-weight:600">
+        <button onclick="showSubscribeModal()" class="btn--outline btn--sm" style="color:var(--cobalt-700);border-color:var(--cobalt-700);font-weight:600">
           <span class="material-symbols-outlined" style="font-size:1.1rem;font-variation-settings:'FILL'1">star</span> 프리미엄
         </button>
       </div>
@@ -74,10 +51,10 @@
   <main class="app-container">
 
     <!-- Search Section -->
-    <section class="app-card-static app-mb-xl" style="background:rgba(255,255,255,0.75);backdrop-filter:blur(12px)">
+    <section class="app-card-static app-mb-xl">
       <div class="app-flex-center app-gap-md app-mb-lg">
-        <span class="material-symbols-outlined" style="color:var(--cobalt-700);font-size:1.5rem">search</span>
-        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(1.1rem,2vw,1.35rem);letter-spacing:-0.02em;color:var(--cobalt-700)">아파트 실거래가 조회</h2>
+        <span class="material-symbols-outlined app-text-cobalt" style="font-size:1.5rem">search</span>
+        <h2 class="app-section-title app-mb-0">아파트 실거래가 조회</h2>
       </div>
 
       <div class="app-search-grid app-mb-md">
@@ -101,14 +78,14 @@
           </div>
         </div>
         <div style="display:flex;align-items:flex-end">
-          <button id="searchBtn" disabled onclick="if(window.selectedSgg)searchByRegion()" class="app-btn app-w-full">조회</button>
+          <button id="searchBtn" disabled onclick="if(window.selectedSgg)searchByRegion()" class="btn--accent app-w-full">조회</button>
         </div>
       </div>
 
       <div class="app-input-wrap app-mb-md">
         <span class="app-input-icon material-symbols-outlined">search</span>
         <input id="keywordInput" type="text" onkeydown="if(event.key==='Enter'&&typeof searchByKeyword==='function')searchByKeyword()" placeholder="아파트명으로 검색 (예: 래미안)" class="app-field" style="padding-left:2.5rem;padding-right:7rem">
-        <button id="keywordSearchBtn" onclick="if(typeof searchByKeyword==='function')searchByKeyword()" class="app-btn" style="position:absolute;right:6px;top:6px;padding:6px 16px;min-height:auto">검색</button>
+        <button id="keywordSearchBtn" onclick="if(typeof searchByKeyword==='function')searchByKeyword()" class="btn--accent btn--sm" style="position:absolute;right:6px;top:6px">검색</button>
       </div>
 
       <div class="app-checkbox-grid">
@@ -122,7 +99,7 @@
         <label class="app-checkbox"><input type="checkbox" name="aptType" value="officetel-rent"> 오피스텔 전월세</label>
       </div>
 
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
         <div class="app-flex-center app-gap-sm app-mb-sm">
           <span class="material-symbols-outlined" style="color:var(--amber);font-size:1rem">lightbulb</span>
           <span class="app-text-sm" style="font-weight:600">예산으로 추천받기</span>
@@ -140,14 +117,14 @@
           <input id="budgetMinInput" type="number" placeholder="최소(만원)" class="app-field" style="width:7rem;padding:4px 8px;font-size:0.75rem">
           <span>~</span>
           <input id="budgetMaxInput" type="number" placeholder="최대(만원)" class="app-field" style="width:7rem;padding:4px 8px;font-size:0.75rem">
-          <button id="budgetApplyBtn" class="app-btn" style="padding:4px 12px;min-height:auto;font-size:0.75rem;background:var(--amber)">적용</button>
+          <button id="budgetApplyBtn" class="btn--accent btn--sm" style="background:var(--amber)">적용</button>
           <span id="budgetResult" class="hidden app-text-xs app-text-amber" style="font-weight:600"></span>
         </div>
       </div>
     </section>
 
     <!-- Loading -->
-    <div id="loading" class="hidden" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 0">
+    <div id="loading" class="hidden app-flex-center" style="flex-direction:column;padding:80px 0">
       <div class="animate-spin" style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--cobalt-600);border-radius:50%;margin-bottom:12px"></div>
       <span class="app-text-sm app-text-muted">데이터를 불러오는 중...</span>
     </div>
@@ -161,7 +138,7 @@
         </div>
         <p style="font-size:0.875rem;opacity:0.9">㎡당 정확한 시세 · 인근 단지 비교 · 엑셀 다운로드</p>
       </div>
-      <button onclick="showSubscribeModal()" class="app-btn" style="background:#fff;color:var(--cobalt-700)">구독하기 (월 3,900원)</button>
+      <button onclick="showSubscribeModal()" class="btn--accent">구독하기 (월 3,900원)</button>
     </div>
 
     <!-- Results Section -->
@@ -187,14 +164,14 @@
               <li class="app-flex-center app-gap-sm" style="font-size:0.875rem"><span class="material-symbols-outlined" style="color:#6ee7b7;font-size:1rem">check_circle</span> 엑셀 다운로드</li>
             </ul>
           </div>
-          <button onclick="showSubscribeModal()" class="app-btn" style="background:#fff;color:var(--cobalt-700);width:100%;justify-content:center">구독하기 <span class="material-symbols-outlined" style="font-size:1.1rem">arrow_forward</span></button>
+          <button onclick="showSubscribeModal()" class="btn--accent" style="background:#fff;color:var(--cobalt-700);width:100%;justify-content:center">구독하기 <span class="material-symbols-outlined" style="font-size:1.1rem">arrow_forward</span></button>
         </div>
 
         <!-- Chart Card -->
         <div class="app-card-static">
           <div class="app-flex-between app-mb-lg">
             <div>
-              <h3 style="font-weight:700;color:var(--text-primary)">📈 실거래가 추이</h3>
+              <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem">실거래가 추이</h3>
               <p class="app-text-xs app-text-muted app-mt-sm">월별 평균 거래가 추이</p>
             </div>
             <div class="app-flex-center app-gap-md">
@@ -223,9 +200,9 @@
       <!-- Table + Info -->
       <div class="app-results-grid">
         <div class="app-card-static" style="padding:0;overflow:hidden">
-          <div class="app-flex-between" style="padding:16px 24px;border-bottom:1px solid var(--border)">
-            <h3 style="font-weight:700;color:var(--text-primary)">📋 최근 실거래가</h3>
-            <button id="downloadBtn" onclick="if(typeof downloadCSV==='function')downloadCSV()" class="app-btn--outline" style="padding:6px 14px;min-height:auto;font-size:0.75rem">
+          <div class="app-flex-between" style="padding:20px 24px;border-bottom:1px solid var(--border)">
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem">최근 실거래가</h3>
+            <button id="downloadBtn" onclick="if(typeof downloadCSV==='function')downloadCSV()" class="btn--outline btn--sm">
               <span class="material-symbols-outlined" style="font-size:0.9rem">download</span> 엑셀
             </button>
           </div>
@@ -241,28 +218,28 @@
 
         <div class="app-sidebar">
           <div class="app-card-static">
-            <h3 class="app-flex-center app-gap-sm" style="font-weight:700;color:var(--text-primary);margin-bottom:16px">
+            <h3 class="app-flex-center app-gap-sm" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:16px">
               <span class="material-symbols-outlined" style="color:var(--cobalt-600)">cloud</span>
               <span>주변 생활정보</span>
             </h3>
             <div class="app-info-grid">
-              <div style="background:var(--cobalt-50);border-radius:12px;padding:16px;text-align:center">
-                <div class="material-symbols-outlined" style="color:#059669;margin-bottom:4px;font-size:1.5rem">air</div>
+              <div class="app-stat-card" style="padding:16px">
+                <span class="material-symbols-outlined" style="color:#059669;margin-bottom:4px;font-size:1.5rem">air</span>
                 <div class="app-stat-label">미세먼지</div>
                 <div id="airQuality" class="app-text-sm" style="font-weight:700">-</div>
               </div>
-              <div style="background:var(--cobalt-50);border-radius:12px;padding:16px;text-align:center">
-                <div class="material-symbols-outlined" style="color:var(--cobalt-600);margin-bottom:4px;font-size:1.5rem">subway</div>
+              <div class="app-stat-card" style="padding:16px">
+                <span class="material-symbols-outlined" style="color:var(--cobalt-600);margin-bottom:4px;font-size:1.5rem">subway</span>
                 <div class="app-stat-label">지하철</div>
                 <div id="subwayInfo" class="app-text-sm" style="font-weight:700">-</div>
               </div>
-              <div style="background:var(--cobalt-50);border-radius:12px;padding:16px;text-align:center">
-                <div class="material-symbols-outlined" style="color:var(--amber);margin-bottom:4px;font-size:1.5rem">school</div>
+              <div class="app-stat-card" style="padding:16px">
+                <span class="material-symbols-outlined" style="color:var(--amber);margin-bottom:4px;font-size:1.5rem">school</span>
                 <div class="app-stat-label">초등학교</div>
                 <div id="schoolInfo" class="app-text-sm" style="font-weight:700">-</div>
               </div>
-              <div style="background:var(--cobalt-50);border-radius:12px;padding:16px;text-align:center">
-                <div class="material-symbols-outlined" style="color:var(--cobalt-700);margin-bottom:4px;font-size:1.5rem">storefront</div>
+              <div class="app-stat-card" style="padding:16px">
+                <span class="material-symbols-outlined" style="color:var(--cobalt-700);margin-bottom:4px;font-size:1.5rem">storefront</span>
                 <div class="app-stat-label">편의시설</div>
                 <div id="convenienceInfo" class="app-text-sm" style="font-weight:700">-</div>
               </div>
@@ -277,38 +254,38 @@
 
       <!-- Report -->
       <section id="reportSection" class="hidden app-card-static app-mb-xl">
-        <div style="padding:16px 24px;border-bottom:1px solid var(--border)">
-          <h3 style="font-weight:700;color:var(--text-primary)">📊 중개사 전용 시세분석</h3>
+        <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem">중개사 전용 시세분석</h3>
         </div>
-        <div id="reportContent" style="padding:20px"></div>
+        <div id="reportContent" style="padding:24px"></div>
       </section>
 
       <!-- 가성비 Top 3 -->
       <section id="topValueSection" class="hidden app-card-static app-mb-xl">
-        <div class="app-flex-center app-gap-sm" style="padding:16px 24px;border-bottom:1px solid var(--border)">
+        <div class="app-flex-center app-gap-sm" style="padding:20px 24px;border-bottom:1px solid var(--border)">
           <span class="material-symbols-outlined" style="color:var(--amber)">emoji_events</span>
-          <h3 style="font-weight:700;color:var(--text-primary)">가성비 Top 3</h3>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem">가성비 Top 3</h3>
         </div>
-        <div id="topValueContent" style="padding:20px"></div>
+        <div id="topValueContent" style="padding:24px"></div>
       </section>
 
       <!-- 자치구 랭킹 -->
       <section id="rankSection" class="hidden app-card-static app-mb-xl">
-        <div class="app-flex-center app-gap-sm" style="padding:16px 24px;border-bottom:1px solid var(--border)">
+        <div class="app-flex-center app-gap-sm" style="padding:20px 24px;border-bottom:1px solid var(--border)">
           <span class="material-symbols-outlined" style="color:var(--cobalt-600)">stadia_altitude</span>
-          <h3 style="font-weight:700;color:var(--text-primary)">자치구 랭킹</h3>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem">자치구 랭킹</h3>
         </div>
-        <div id="rankContent" style="padding:20px"></div>
+        <div id="rankContent" style="padding:24px"></div>
       </section>
     </section>
 
     <!-- Saved Section -->
     <div id="savedSection" class="hidden app-card-static app-mb-xl">
-      <div class="app-flex-center app-gap-sm" style="padding:16px 24px;border-bottom:1px solid var(--border)">
+      <div class="app-flex-center app-gap-sm" style="padding:20px 24px;border-bottom:1px solid var(--border)">
         <span style="font-size:1.1rem">⭐</span> 저장한 아파트 <span id="savedCount" class="app-badge app-badge--cobalt" style="font-size:0.65rem;padding:2px 8px">0</span>
-        <button id="compareBtn" class="app-btn hidden" style="margin-left:auto;padding:4px 12px;min-height:auto;font-size:0.75rem">비교하기</button>
+        <button id="compareBtn" class="btn--accent btn--sm hidden" style="margin-left:auto">비교하기</button>
       </div>
-      <div id="savedList" style="padding:20px"><p class="empty-msg">저장한 아파트가 없습니다.</p></div>
+      <div id="savedList" style="padding:24px"><p class="empty-msg">저장한 아파트가 없습니다.</p></div>
     </div>
 
     <!-- Comparison Modal -->
@@ -346,7 +323,7 @@
       <button onclick="closeSubscribeModal()" class="app-modal-close">&times;</button>
       <div style="text-align:center;margin-bottom:24px">
         <div style="font-size:2.5rem;margin-bottom:8px">🏠</div>
-        <h2 style="font-weight:700;font-size:1.25rem;color:var(--text-primary)">프리미엄 구독</h2>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.25rem">프리미엄 구독</h2>
         <p class="app-text-sm app-text-muted app-mt-sm">무제한 조회 · 엑셀 다운로드 · 인근 단지 비교</p>
       </div>
       <div style="text-align:center;margin-bottom:24px">
@@ -359,7 +336,7 @@
         <li class="app-flex-center app-gap-sm" style="font-size:0.875rem"><span class="material-symbols-outlined" style="color:#059669;font-size:1rem;font-variation-settings:'FILL'1">check_circle</span> 인근 단지 가격 비교</li>
       </ul>
       <div id="loginRequiredMsg" class="hidden app-text-sm" style="text-align:center;color:var(--amber);margin-bottom:12px">로그인이 필요합니다.</div>
-      <button id="payBtn" onclick="startPayment()" class="app-btn app-w-full" style="justify-content:center">PayPal로 결제하기</button>
+      <button id="payBtn" onclick="startPayment()" class="btn--accent app-w-full" style="justify-content:center">PayPal로 결제하기</button>
       <div id="paypal-button-container" class="hidden app-mt-md"></div>
       <p class="app-text-xs app-text-muted" style="text-align:center;margin-top:12px">월 3,900원 (USD $3.90) · 신용카드 · PayPal</p>
     </div>
