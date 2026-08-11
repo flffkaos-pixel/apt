@@ -1,0 +1,4 @@
+﻿User-agent: *
+Allow: /
+Allow: /research/
+Sitemap: https://aptscouter.pages.dev/sitemap.xml
