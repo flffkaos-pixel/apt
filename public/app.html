@@ -335,9 +335,8 @@
         <li class="app-flex-center app-gap-sm app-mb-sm" style="font-size:0.875rem"><span class="material-symbols-outlined" style="color:#059669;font-size:1rem;font-variation-settings:'FILL'1">check_circle</span> CSV/엑셀 다운로드</li>
         <li class="app-flex-center app-gap-sm" style="font-size:0.875rem"><span class="material-symbols-outlined" style="color:#059669;font-size:1rem;font-variation-settings:'FILL'1">check_circle</span> 인근 단지 가격 비교</li>
       </ul>
-      <div id="loginRequiredMsg" class="hidden app-text-sm" style="text-align:center;color:var(--amber);margin-bottom:12px">로그인이 필요합니다.</div>
-      <button id="payBtn" onclick="startPayment()" class="btn--accent app-w-full" style="justify-content:center">PayPal로 결제하기</button>
-      <div id="paypal-button-container" class="hidden app-mt-md"></div>
+      <div id="loginRequiredMsg" class="hidden app-text-sm" style="text-align:center;color:var(--amber);margin-bottom:12px">로그인이 필요합니다. <a href="/api/auth/google" style="color:var(--cobalt-700);font-weight:700">Google로 로그인 →</a></div>
+      <div id="paypal-button-container" style="min-height:120px"></div>
       <p class="app-text-xs app-text-muted" style="text-align:center;margin-top:12px">월 3,900원 (USD $3.90) · 신용카드 · PayPal</p>
     </div>
   </div>
@@ -405,7 +404,7 @@
       dongSel.disabled = true; dongSel.innerHTML = '<option value="">로딩 중</option>';
       setTimeout(function() {
         var ym = document.getElementById('yearSelect').value + document.getElementById('monthSelect').value;
-        fetch('/api/search?types=apt&lawdCd=' + selectedSgg + '&dealYmd=' + ym + '&skipGeocode=1').then(function(r){return r.json()}).then(function(data){
+        fetch('/api/search?types=apt&lawdCd=' + selectedSgg + '&dealYmd=' + ym + '&dongList=1').then(function(r){return r.json()}).then(function(data){
           var dongs = []; var seen = {};
           for (var i = 0; i < (data.items||[]).length; i++) { var u = data.items[i].umdNm; if (u && !seen[u]) { seen[u] = 1; dongs.push(u); } }
           dongs.sort();

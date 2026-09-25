@@ -1,6 +1,8 @@
 var currentResults = null;
 var priceChart = null;
 var DAILY_FREE_LIMIT = 1;
+var paypalClientId = '';
+var paypalSdkLoaded = false;
 
 function getUser() {
   return (window._cachedUser || {});
@@ -47,6 +49,9 @@ document.addEventListener('DOMContentLoaded', function () {
   checkAuth();
   initSearch();
   initTabs();
+  fetch('/api/config').then(function (r) { return r.json(); }).then(function (c) {
+    paypalClientId = c.paypalClientId || '';
+  }).catch(function () {});
 });
 
 /* ===== Auth ===== */
@@ -124,6 +129,7 @@ async function searchByRegion() {
   showLoading();
   try {
     var res = await fetch('/api/search?' + params.toString());
+    if (res.status === 402) { hideLoading(); showLimitReached(); return; }
     var data = await res.json();
     currentResults = data;
     hideLoading();
@@ -151,6 +157,7 @@ var searchByKeyword = async function () {
   showLoading();
   try {
     var res = await fetch('/api/search?' + params.toString());
+    if (res.status === 402) { hideLoading(); showLimitReached(); return; }
     var data = await res.json();
     currentResults = data;
     hideLoading();
@@ -451,32 +458,65 @@ function renderRanking(data) {
 /* ===== Subscribe Modal ===== */
 function showSubscribeModal() {
   document.getElementById('subscribeModal').classList.remove('hidden');
+  var user = getUser();
+  var loginMsg = document.getElementById('loginRequiredMsg');
+  var container = document.getElementById('paypal-button-container');
+  if (!user || !user.email) {
+    if (loginMsg) loginMsg.classList.remove('hidden');
+    if (container) container.innerHTML = '';
+    return;
+  }
+  if (loginMsg) loginMsg.classList.add('hidden');
+  renderPayPalButtons();
 }
 
 function closeSubscribeModal() {
   document.getElementById('subscribeModal').classList.add('hidden');
 }
 
-/* ===== Payment ===== */
-function startPayment() {
-  if (!window._cachedUser?.email) { alert('로그인이 필요합니다.'); return; }
-  fetch('/api/payment/upgrade', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: window._cachedUser.email })
-  })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (data.ok) {
-        alert('프리미엄 업그레이드 완료! 페이지를 새로고침하세요.');
-        window.location.reload();
-      } else {
-        alert('업그레이드 실패: ' + (data.error || '알 수 없는 오류'));
+/* ===== Payment (PayPal 정기구독) ===== */
+function renderPayPalButtons() {
+  if (paypalSdkLoaded) return;
+  if (!paypalClientId) {
+    alert('결제 설정이 준비되지 않았습니다.\nCloudflare Pages에 PAYPAL_CLIENT_ID를 등록해주세요.');
+    return;
+  }
+  var s = document.createElement('script');
+  s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(paypalClientId) + '&vault=true&intent=subscription';
+  s.onload = function () {
+    if (!window.paypal) { alert('PayPal SDK 로딩 실패'); return; }
+    window.paypal.Buttons({
+      style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'subscribe' },
+      createSubscription: function () {
+        return fetch('/api/payment/create-subscription', { method: 'POST' })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            if (!d.subscriptionId) throw new Error(d.error || '구독 생성 실패');
+            return d.subscriptionId;
+          });
+      },
+      onApprove: function (data) {
+        return fetch('/api/payment/upgrade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscriptionId: data.subscriptionID })
+        }).then(function (r) { return r.json(); }).then(function (d) {
+          if (d.ok) {
+            alert('프리미엄 구독이 완료되었습니다!');
+            closeSubscribeModal();
+            checkAuth();
+          } else {
+            alert('구독 확인 실패: ' + (d.error || '알 수 없는 오류'));
+          }
+        });
+      },
+      onError: function (err) {
+        alert('결제 오류: ' + ((err && err.message) || '다시 시도해주세요.'));
       }
-    })
-    .catch(function () {
-      alert('결제 처리 중 오류가 발생했습니다.');
-    });
+    }).render('#paypal-button-container');
+    paypalSdkLoaded = true;
+  };
+  document.head.appendChild(s);
 }
 
 /* ===== Compare ===== */
